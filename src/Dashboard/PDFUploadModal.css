@@ -1,0 +1,96 @@
+/* PDF Upload Modal Styles */
+
+.pdf-upload-modal-card {
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile responsive - full screen on small devices */
+@media (max-width: 640px) {
+  .pdf-upload-modal-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    padding: 20px !important;
+  }
+}
+
+/* Tablet responsive */
+@media (min-width: 641px) and (max-width: 768px) {
+  .pdf-upload-modal-card {
+    max-width: 90% !important;
+    padding: 24px !important;
+  }
+}
+
+/* Drag and drop zone hover effect */
+.pdf-upload-dropzone {
+  transition: all 0.2s ease;
+}
+
+.pdf-upload-dropzone:hover {
+  border-color: #1a56db !important;
+  background: #eff4ff !important;
+}
+
+/* Progress bar animation */
+@keyframes progressPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pdf-upload-progress {
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+/* Button hover effects */
+.pdf-upload-btn-primary:hover:not(:disabled) {
+  background: #162952 !important;
+  transform: translateY(-1px);
+}
+
+.pdf-upload-btn-secondary:hover:not(:disabled) {
+  background: #f3f4f6 !important;
+}
+
+/* Error shake animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.pdf-upload-error {
+  animation: shake 0.5s ease;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.pdf-upload-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
