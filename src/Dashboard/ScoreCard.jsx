@@ -1530,7 +1530,7 @@ export default function ScoreCard({ score, formData, profileType, scoreBreakdown
 
       {/* Trending Skills Breakdown - Always Visible */}
       {trendingSkills && (
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: "20px" }}>
+        <div style={{ paddingTop: "20px" }}>
 
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>

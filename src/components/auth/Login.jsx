@@ -35,6 +35,9 @@ export default function Login() {
     setError("");
     setLoading(true);
 
+    // Clear old expired tokens
+    localStorage.removeItem('user');
+
     try {
       const res = await API.post("/user/google-login", {
         credential: credentialResponse?.credential,
@@ -68,6 +71,9 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setPasswordTouched(true);
+
+    // Clear old expired tokens
+    localStorage.removeItem('user');
 
     if (passwordError) {
       setError(passwordError);

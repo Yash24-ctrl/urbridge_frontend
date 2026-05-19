@@ -47,10 +47,21 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         .replace(/([.!?])\s+/g, "$1\n")
         .trim();
       
+      // Check if PDF has actual text content
+      if (!fullText || fullText.trim().length < 50) {
+        throw new Error("This PDF appears to be image-based (scanned). Please upload a text-based PDF or fill the form manually.");
+      }
+      
       return fullText;
     } catch (error) {
       console.error("PDF extraction error:", error);
-      throw new Error("Failed to extract text from PDF. File may be corrupted or image-based.");
+      
+      // Check if it's an image-based PDF
+      if (error.message.includes("image-based") || error.message.includes("scanned")) {
+        throw error;
+      }
+      
+      throw new Error("Failed to extract text. The PDF may be corrupted, password-protected, or image-based. Try a different PDF or fill the form manually.");
     }
   };
 

@@ -163,7 +163,7 @@ img {
 .dashboard-empty-state {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(17, 24, 39, 0.08);
+  border: none;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.84);
   box-shadow: 0 18px 55px rgba(24, 38, 84, 0.12);
@@ -312,16 +312,8 @@ img {
 }
 
 .dashboard-panel-accent::after,
-.dashboard-hero-copy::after,
-.dashboard-score-card::after {
-  content: "";
-  position: absolute;
-  inset: auto -80px -80px auto;
-  width: 220px;
-  height: 220px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(0, 128, 128, 0.18), transparent 68%);
-  pointer-events: none;
+.dashboard-hero-copy::after {
+  display: none;
 }
 
 .dashboard-panel-header {
