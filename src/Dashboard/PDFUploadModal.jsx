@@ -4,9 +4,8 @@ import "./PDFUploadModal.css";
 // Load PDF.js
 import * as pdfjsLib from "pdfjs-dist";
 
-// Use the worker from the installed package (matches library version)
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+// Set worker - use CDN for better compatibility
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -31,14 +30,27 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
   const extractTextFromPDF = async (file) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const loadingTask = pdfjsLib.getDocument({
+        data: arrayBuffer,
+        useSystemFonts: true,
+        disableFontFace: true
+      });
+      
+      const pdf = await loadingTask.promise;
 
       let fullText = "";
       for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const pageText = content.items.map((item) => item.str).join(" ");
-        fullText += pageText + "\n";
+        try {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items
+            .filter(item => item.str && item.str.trim())
+            .map((item) => item.str)
+            .join(" ");
+          fullText += pageText + "\n";
+        } catch (pageError) {
+          console.warn(`Failed to extract text from page ${i}:`, pageError);
+        }
       }
       
       // Clean up text: remove extra whitespace, normalize
@@ -46,6 +58,8 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         .replace(/\s+/g, " ")
         .replace(/([.!?])\s+/g, "$1\n")
         .trim();
+      
+      console.log(`Extracted ${fullText.length} characters from PDF`);
       
       // Check if PDF has actual text content
       if (!fullText || fullText.trim().length < 50) {
@@ -61,7 +75,16 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         throw error;
       }
       
-      throw new Error("Failed to extract text. The PDF may be corrupted, password-protected, or image-based. Try a different PDF or fill the form manually.");
+      // Provide more specific error messages
+      if (error.name === "PasswordException") {
+        throw new Error("This PDF is password-protected. Please upload an unlocked PDF.");
+      }
+      
+      if (error.message.includes("worker")) {
+        throw new Error("PDF processing failed. Please try a different PDF or fill the form manually.");
+      }
+      
+      throw new Error(`Failed to extract text (${error.message}). Try a different PDF or fill the form manually.`);
     }
   };
 
