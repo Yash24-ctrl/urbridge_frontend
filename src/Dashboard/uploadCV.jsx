@@ -55,7 +55,7 @@ export default function UploadCV({ setScore, setSuggestions }) {
   const text = await extractTextFromPDF(file);
 
   // basic safety check
-  if (!text || text.length < 100) {
+  if (!text || text.length < 50) {
     return ["resume content too short or unreadable"];
   }
 

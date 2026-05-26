@@ -7,6 +7,7 @@ import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MIN_TEXT_LENGTH = 50;
 
 function arrayBufferToBase64(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
@@ -137,7 +138,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
 
       console.log(`Total extracted: ${fullText.length} characters`);
 
-      if (fullText && fullText.length >= 50) {
+      if (fullText && fullText.length >= MIN_TEXT_LENGTH) {
         return fullText;
       }
 
@@ -160,15 +161,22 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
       });
 
       if (!aiResponse.ok) {
-        throw new Error("AI extraction failed");
+        const errorData = await aiResponse.json().catch(() => ({}));
+        throw new Error(
+          errorData?.error ||
+          errorData?.message ||
+          "Could not extract text from PDF. Please make sure your PDF is not scanned or image-based."
+        );
       }
 
       const aiData = await aiResponse.json();
-      if (aiData?.text && aiData.text.trim().length >= 50) {
+      if (aiData?.text && aiData.text.trim().length >= MIN_TEXT_LENGTH) {
         return aiData.text.trim();
       }
 
-      throw new Error("This PDF could not be read properly.");
+      throw new Error(
+        "Could not extract text from PDF. Please make sure your PDF is not scanned or image-based."
+      );
     } catch (extractionError) {
       console.error("PDF extraction error:", extractionError);
 
@@ -285,7 +293,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
 
       const parsedData = await parseResumeWithAI({
         pdfText,
-        pdfBase64,
+        pdfBase64: pdfText.trim().length >= MIN_TEXT_LENGTH ? "" : pdfBase64,
         fileName: selectedFile.name,
       });
 
