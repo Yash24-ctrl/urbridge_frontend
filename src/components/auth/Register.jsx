@@ -8,6 +8,7 @@ import {
   getRegisterPasswordChecks,
   validateRegisterPassword,
 } from "../../utils/passwordValidation";
+import { isValidEmail, normalizeEmail } from "../../utils/emailValidation";
 
 export default function Register() {
   const { login } = useContext(AuthContext);
@@ -80,6 +81,16 @@ export default function Register() {
     setError("");
     setPasswordTouched(true);
 
+    if (!form.username.trim() || !form.email.trim() || !form.password) {
+      setError("Please provide username, email, and password.");
+      return;
+    }
+
+    if (!isValidEmail(form.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (passwordError) {
       setError(passwordError);
       return;
@@ -87,17 +98,18 @@ export default function Register() {
 
     try {
       setLoading(true);
+      const normalizedEmail = normalizeEmail(form.email);
 
       const res = await API.post("/user/register", {
         ...form,
-        email: form.email.toLowerCase(),
+        email: normalizedEmail,
       });
       localStorage.setItem(
         "registerUserData",
         JSON.stringify({
           user: res.data?.user ?? null,
           username: form.username,
-          email: form.email.toLowerCase(),
+          email: normalizedEmail,
         })
       );
 
@@ -164,7 +176,7 @@ export default function Register() {
                   )}
 
                   {/* Form */}
-                  <form onSubmit={submit}>
+                  <form onSubmit={submit} noValidate>
                     <div className="mb-3">
                       <label className="form-label fw-semibold">
                         <i className="fas fa-user me-2 text-muted"></i>
@@ -189,7 +201,9 @@ export default function Register() {
                       </label>
                       <input
                         className="form-control form-control-lg"
-                        type="email"
+                        type="text"
+                        inputMode="email"
+                        autoComplete="email"
                         placeholder="Enter email"
                         required
                         value={form.email}

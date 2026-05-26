@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [scoreBreakdown, setScoreBreakdown] = useState(null);
   const [strongPoints, setStrongPoints] = useState([]);
   const [isPDFModalOpen, setIsPDFModalOpen] = useState(false);
+  const [manualFormResetKey, setManualFormResetKey] = useState(0);
 
   const insights = [
     { label: "Fast resume scan", value: "30 sec" },
@@ -47,6 +48,23 @@ export default function DashboardPage() {
     window.pdfParsedData = parsedData;
   };
 
+  const resetAnalysisState = () => {
+    setScore(null);
+    setSuggestions([]);
+    setFormData(null);
+    setCvText(null);
+    setProfileType(null);
+    setScoreBreakdown(null);
+    setStrongPoints([]);
+    window.pdfParsedData = null;
+    setManualFormResetKey((currentValue) => currentValue + 1);
+  };
+
+  const handleUploadNewResume = () => {
+    resetAnalysisState();
+    setIsPDFModalOpen(true);
+  };
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-shell">
@@ -72,15 +90,13 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="dashboard-hero-panel">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-              <div className="dashboard-badge">Free Workspace</div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", maxWidth: "100%" }}>
-                {user?.username && (
-                  <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.9rem", wordBreak: "break-word" }}>
-                    {user.username}
-                  </span>
-                )}
-                <button
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px", flexWrap: "wrap", maxWidth: "100%" }}>
+              {user?.username && (
+                <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.9rem", wordBreak: "break-word" }}>
+                  {user.username}
+                </span>
+              )}
+              <button
                 type="button"
                 onClick={handleLogout}
                 aria-label="Logout"
@@ -109,7 +125,6 @@ export default function DashboardPage() {
               >
                 Logout
               </button>
-              </div>
             </div>
             <div className="dashboard-preview-score">
               <span>Profile readiness</span>
@@ -158,13 +173,21 @@ export default function DashboardPage() {
           <UploadCV setScore={setScore} setSuggestions={setSuggestions} />
         </div> */}
         <div style={{ marginBottom : "25px" }}>
-          <ManualForm setScore={setScore} setSuggestions={setSuggestions} setFormData={setFormData} setProfileType={setProfileType} setScoreBreakdown={setScoreBreakdown} setStrongPoints={setStrongPoints} />
+          <ManualForm
+            key={manualFormResetKey}
+            setScore={setScore}
+            setSuggestions={setSuggestions}
+            setFormData={setFormData}
+            setProfileType={setProfileType}
+            setScoreBreakdown={setScoreBreakdown}
+            setStrongPoints={setStrongPoints}
+          />
         </div>
 
         <section className="dashboard-results">
           {score !== null ? (
             <>
-                            <ScoreCard score={score} formData={formData} profileType={profileType} scoreBreakdown={scoreBreakdown} strongPoints={strongPoints} />
+              <ScoreCard score={score} formData={formData} profileType={profileType} scoreBreakdown={scoreBreakdown} strongPoints={strongPoints} />
               <Suggestions suggestions={suggestions} />
               <button
                 type="button"
@@ -173,6 +196,37 @@ export default function DashboardPage() {
                 onClick={() => downloadReport({ score, suggestions, formData })}
               >
                 Download report
+              </button>
+              <button
+                type="button"
+                style={{
+                  width: "100%",
+                  padding: "12px 16px",
+                  borderRadius: "999px",
+                  background: "#ffffff",
+                  border: "2px solid rgba(15, 23, 42, 0.14)",
+                  color: "#0d1b3e",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  transition: "all 0.2s ease",
+                  gridColumn: "1 / -1",
+                }}
+                onClick={handleUploadNewResume}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#f8fbff";
+                  e.currentTarget.style.borderColor = "rgba(13, 27, 62, 0.28)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#ffffff";
+                  e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.14)";
+                }}
+              >
+                Upload New Resume
               </button>
             </>
           ) : (

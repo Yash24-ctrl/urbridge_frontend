@@ -1,20 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { AuthContext } from "./auth-context";
-
-function getStoredUser() {
-  const userFromStorage = localStorage.getItem("user");
-
-  if (!userFromStorage) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(userFromStorage);
-  } catch {
-    localStorage.removeItem("user");
-    return null;
-  }
-}
+import {
+  AUTH_SESSION_EVENT,
+  clearStoredUser,
+  getStoredUser,
+  storeUser,
+} from "../utils/authSession";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(getStoredUser);
@@ -23,22 +14,29 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     mountedRef.current = true;
 
+    const syncUserFromStorage = () => {
+      setUser(getStoredUser());
+    };
+
+    window.addEventListener(AUTH_SESSION_EVENT, syncUserFromStorage);
+    window.addEventListener("storage", syncUserFromStorage);
+
     return () => {
       mountedRef.current = false;
+      window.removeEventListener(AUTH_SESSION_EVENT, syncUserFromStorage);
+      window.removeEventListener("storage", syncUserFromStorage);
     };
   }, []);
 
   const login = (userData) => {
-    setUser(userData);
-    if (mountedRef.current) {
-      localStorage.setItem("user", JSON.stringify(userData));
-    }
+    const normalizedUser = storeUser(userData);
+    setUser(normalizedUser);
   };
 
   const logout = () => {
     setUser(null);
     if (mountedRef.current) {
-      localStorage.removeItem("user");
+      clearStoredUser();
     }
   };
 

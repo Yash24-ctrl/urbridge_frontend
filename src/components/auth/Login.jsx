@@ -1,19 +1,22 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import API from "../../api/axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/auth-context";
 import { GoogleLogin } from "@react-oauth/google";
 import logo from "../../Icon.png";
 import { validateLoginPassword } from "../../utils/passwordValidation";
+import { clearStoredUser } from "../../utils/authSession";
+import { isValidEmail, normalizeEmail } from "../../utils/emailValidation";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => location.state?.message || "");
   const [passwordTouched, setPasswordTouched] = useState(false);
   const googleButtonRef = useRef(null);
   const [googleButtonWidth, setGoogleButtonWidth] = useState(320);
@@ -36,7 +39,7 @@ export default function Login() {
     setLoading(true);
 
     // Clear old expired tokens
-    localStorage.removeItem('user');
+    clearStoredUser();
 
     try {
       const res = await API.post("/user/google-login", {
@@ -73,7 +76,17 @@ export default function Login() {
     setPasswordTouched(true);
 
     // Clear old expired tokens
-    localStorage.removeItem('user');
+    clearStoredUser();
+
+    if (!email.trim() || !password) {
+      setError("Please provide email and password.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
 
     if (passwordError) {
       setError(passwordError);
@@ -82,9 +95,10 @@ export default function Login() {
 
     try {
       setLoading(true);
+      const normalizedEmail = normalizeEmail(email);
 
       const res = await API.post("/user/login", {
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         password,
       });
       
@@ -150,7 +164,7 @@ export default function Login() {
                   )}
 
                   {/* Login Form */}
-                  <form onSubmit={submit}>
+                  <form onSubmit={submit} noValidate>
                     <div className="mb-3">
                       <label htmlFor="email" className="form-label fw-semibold">
                         <i className="fas fa-envelope me-2 text-muted"></i>
@@ -159,7 +173,9 @@ export default function Login() {
                       <input
                         id="email"
                         className="form-control form-control-lg"
-                        type="email"
+                        type="text"
+                        inputMode="email"
+                        autoComplete="email"
                         placeholder="Enter your email"
                         required
                         value={email}

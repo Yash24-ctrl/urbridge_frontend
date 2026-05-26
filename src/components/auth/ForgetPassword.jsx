@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../../api/axios";
 import logo from "../../Icon.png";
+import { isValidEmail, normalizeEmail } from "../../utils/emailValidation";
 
 const RESET_PASSWORD_PAGE_URL =
     "https://urbridge.in/reset-password";
@@ -51,10 +52,15 @@ export default function ForgotPassword() {
             return;
         }
 
+        if (!isValidEmail(email)) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+
         try {
             setLoading(true);
             const res = await API.post("/user/forgot-password", {
-                email: email.toLowerCase(),
+                email: normalizeEmail(email),
                 resetUrl: RESET_PASSWORD_PAGE_URL,
             });
 
@@ -124,7 +130,7 @@ export default function ForgotPassword() {
                                 </div>
                             )}
 
-                            <form onSubmit={submit}>
+                            <form onSubmit={submit} noValidate>
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label fw-semibold">
                                         <i className="fas fa-envelope me-2 text-muted"></i>
@@ -132,7 +138,9 @@ export default function ForgotPassword() {
                                     </label>
                                     <input
                                         id="email"
-                                        type="email"
+                                        type="text"
+                                        inputMode="email"
+                                        autoComplete="email"
                                         className="form-control form-control-lg"
                                         placeholder="Enter registered email"
                                         value={email}

@@ -145,7 +145,6 @@ img {
 
 .dashboard-shell {
   width: 100%;
-  max-width: 1180px;
   margin: 0 auto;
 }
 
@@ -255,6 +254,23 @@ img {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.dashboard-badge-button {
+  cursor: pointer;
+  color: #ffffff;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-badge-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.dashboard-badge-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 .dashboard-preview-score {

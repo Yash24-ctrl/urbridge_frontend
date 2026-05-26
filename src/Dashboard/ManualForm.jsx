@@ -73,7 +73,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
           skills: data.skills?.length > 0 ? data.skills : [""],
           experience: data.yearsOfExperience || "",
           education: data.educationLevel || "",
-          customEducation: "",
+          customEducation: data.customEducation || "",
           certifications: data.certifications?.length > 0 ? data.certifications : [""],
           completedProjects: data.completedProjects || "",
           desiredJobRoles: data.desiredJobRole || "",

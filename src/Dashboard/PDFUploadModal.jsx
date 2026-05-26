@@ -1,11 +1,71 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import "./PDFUploadModal.css";
 
-// Load PDF.js
 import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
-// Set worker - use CDN for better compatibility
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+function arrayBufferToBase64(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+function buildPageText(items = []) {
+  const sortedItems = [...items]
+    .filter((item) => item?.str && item.str.trim())
+    .sort((a, b) => {
+      const yA = a.transform?.[5] || 0;
+      const yB = b.transform?.[5] || 0;
+      if (Math.abs(yB - yA) > 2) {
+        return yB - yA;
+      }
+      return (a.transform?.[4] || 0) - (b.transform?.[4] || 0);
+    });
+
+  const lines = [];
+  let currentLine = [];
+  let lastY = null;
+  let lastX = null;
+
+  for (const item of sortedItems) {
+    const text = item.str.trim();
+    const x = item.transform?.[4] || 0;
+    const y = item.transform?.[5] || 0;
+
+    if (lastY !== null && Math.abs(y - lastY) > 3) {
+      if (currentLine.length > 0) {
+        lines.push(currentLine.join("").replace(/\s+/g, " ").trim());
+      }
+      currentLine = [];
+      lastX = null;
+    }
+
+    if (lastX !== null && x - lastX > 12) {
+      currentLine.push(" ");
+    }
+
+    currentLine.push(text);
+    lastY = y;
+    lastX = x + (item.width || text.length);
+  }
+
+  if (currentLine.length > 0) {
+    lines.push(currentLine.join("").replace(/\s+/g, " ").trim());
+  }
+
+  return lines.filter(Boolean).join("\n");
+}
 
 export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -15,80 +75,116 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const validateFile = (file) => {
     if (file.type !== "application/pdf") {
       throw new Error("PDF files only");
     }
-    if (file.size > 5 * 1024 * 1024) {
-      throw new Error("File too large. Max 5MB");
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error("File too large. Max 10MB");
     }
+
     return true;
   };
 
-  const extractTextFromPDF = async (file) => {
+  const extractTextFromPDF = async (file, arrayBuffer) => {
     try {
-      const arrayBuffer = await file.arrayBuffer();
+      console.log("Starting PDF extraction for:", file.name, "Size:", file.size);
+      console.log("ArrayBuffer created, size:", arrayBuffer.byteLength);
+
       const loadingTask = pdfjsLib.getDocument({
         data: arrayBuffer,
         useSystemFonts: true,
-        disableFontFace: true
+        disableFontFace: true,
+        cMapUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/",
+        cMapPacked: true,
       });
-      
+
       const pdf = await loadingTask.promise;
+      console.log("PDF loaded, pages:", pdf.numPages);
 
       let fullText = "";
-      for (let i = 1; i <= pdf.numPages; i++) {
+      let totalPagesProcessed = 0;
+
+      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
         try {
-          const page = await pdf.getPage(i);
+          const page = await pdf.getPage(pageNumber);
           const content = await page.getTextContent();
-          const pageText = content.items
-            .filter(item => item.str && item.str.trim())
-            .map((item) => item.str)
-            .join(" ");
-          fullText += pageText + "\n";
+          const pageText = buildPageText(content.items);
+
+          console.log(`Page ${pageNumber}: Found ${content.items.length} text items`);
+          console.log(`Page ${pageNumber}: Extracted ${pageText.length} characters`);
+
+          if (pageText) {
+            fullText += `${pageText}\n\n`;
+          }
+          totalPagesProcessed += 1;
         } catch (pageError) {
-          console.warn(`Failed to extract text from page ${i}:`, pageError);
+          console.error(`Failed to extract text from page ${pageNumber}:`, pageError);
         }
       }
-      
-      // Clean up text: remove extra whitespace, normalize
+
+      console.log(`Processed ${totalPagesProcessed}/${pdf.numPages} pages`);
+
       fullText = fullText
-        .replace(/\s+/g, " ")
-        .replace(/([.!?])\s+/g, "$1\n")
+        .replace(/[ \t]+/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
         .trim();
-      
-      console.log(`Extracted ${fullText.length} characters from PDF`);
-      
-      // Check if PDF has actual text content
-      if (!fullText || fullText.trim().length < 50) {
-        throw new Error("This PDF appears to be image-based (scanned). Please upload a text-based PDF or fill the form manually.");
+
+      console.log(`Total extracted: ${fullText.length} characters`);
+
+      if (fullText && fullText.length >= 50) {
+        return fullText;
       }
-      
-      return fullText;
-    } catch (error) {
-      console.error("PDF extraction error:", error);
-      
-      // Check if it's an image-based PDF
-      if (error.message.includes("image-based") || error.message.includes("scanned")) {
-        throw error;
+
+      console.log("PDF.js extracted minimal text, trying OCR-aware backend extraction...");
+
+      const aiResponse = await fetch("/api/resume/extract-pdf-text", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${
+            localStorage.getItem("user")
+              ? JSON.parse(localStorage.getItem("user")).token
+              : ""
+          }`,
+        },
+        body: JSON.stringify({
+          pdfBase64: arrayBufferToBase64(arrayBuffer),
+          fileName: file.name,
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        throw new Error("AI extraction failed");
       }
-      
-      // Provide more specific error messages
-      if (error.name === "PasswordException") {
+
+      const aiData = await aiResponse.json();
+      if (aiData?.text && aiData.text.trim().length >= 50) {
+        return aiData.text.trim();
+      }
+
+      throw new Error("This PDF could not be read properly.");
+    } catch (extractionError) {
+      console.error("PDF extraction error:", extractionError);
+
+      if (extractionError.name === "PasswordException") {
         throw new Error("This PDF is password-protected. Please upload an unlocked PDF.");
       }
-      
-      if (error.message.includes("worker")) {
+
+      if (extractionError.message.includes("worker")) {
         throw new Error("PDF processing failed. Please try a different PDF or fill the form manually.");
       }
-      
-      throw new Error(`Failed to extract text (${error.message}). Try a different PDF or fill the form manually.`);
+
+      throw extractionError;
     }
   };
 
-  const handleFileSelect = async (file) => {
+  const handleFileSelect = (file) => {
     setError("");
     setSelectedFile(file);
   };
@@ -97,7 +193,9 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
+    if (file) {
+      handleFileSelect(file);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -115,103 +213,138 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
 
   const handleFileInputChange = (e) => {
     const file = e.target.files[0];
-    if (file) handleFileSelect(file);
+    if (file) {
+      handleFileSelect(file);
+    }
   };
 
-  // ✅ Calls your own backend — no CORS issues, no API key exposed
-  const parseResumeWithClaude = async (pdfText) => {
-    const response = await fetch("/api/resume/parse-resume", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pdfText }),
-    });
+  const parseResumeWithAI = async ({ pdfText, pdfBase64, fileName }) => {
+    let retries = 2;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Server Error: ${errorData.error || response.status}`);
+    while (retries > 0) {
+      try {
+        const response = await fetch("/api/resume/parse-resume", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pdfText, pdfBase64, fileName }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Server Error: ${errorData.error || response.status}`);
+        }
+
+        const parsed = await response.json();
+        if (!parsed || typeof parsed !== "object") {
+          throw new Error("Invalid response format");
+        }
+
+        console.log("Parsed resume data:", parsed);
+        return parsed;
+      } catch (parseError) {
+        retries -= 1;
+        console.warn(`Parse attempt failed, ${retries} retries left:`, parseError.message);
+
+        if (retries === 0) {
+          throw parseError;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
 
-    const parsed = await response.json();
-    return parsed;
+    throw new Error("Resume analysis failed.");
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      return;
+    }
 
     try {
       validateFile(selectedFile);
 
-      setUploadStatus("📄 Reading your resume...");
-      setProgress(25);
+      setUploadStatus("Reading your resume...");
+      setProgress(20);
 
-      const pdfText = await extractTextFromPDF(selectedFile);
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const pdfBase64 = arrayBufferToBase64(arrayBuffer);
 
-      if (!pdfText || pdfText.trim().length < 50) {
-        throw new Error(
-          "⚠️ This PDF is image-based or empty. Please upload a text-based PDF or fill the form manually."
+      let pdfText = "";
+      try {
+        pdfText = await extractTextFromPDF(selectedFile, arrayBuffer);
+      } catch (textError) {
+        console.warn(
+          "Local text extraction was incomplete. Continuing with PDF-aware AI parsing.",
+          textError
         );
       }
 
       setProgress(50);
-      setUploadStatus("🤖 AI is analyzing your resume...");
+      setUploadStatus("AI is analyzing your resume...");
 
-      const parsedData = await parseResumeWithClaude(pdfText);
+      const parsedData = await parseResumeWithAI({
+        pdfText,
+        pdfBase64,
+        fileName: selectedFile.name,
+      });
 
-      // Validate parsed data
-      if (!parsedData || typeof parsedData !== 'object') {
-        throw new Error("AI parsing failed. Please try again or fill manually.");
+      if (!parsedData || typeof parsedData !== "object") {
+        throw new Error("Resume analysis failed. Please try again or fill manually.");
       }
 
       setProgress(75);
-      setUploadStatus("✅ Filling your details...");
+      setUploadStatus("Filling your details...");
 
-      // Ensure all required fields exist
       const safeData = {
         yearsOfExperience: parsedData.yearsOfExperience || "0",
-        educationLevel: parsedData.educationLevel || "Bachelor's",
-        desiredJobRole: parsedData.desiredJobRole || "",
-        completedProjects: parsedData.completedProjects || "0",
-        skills: Array.isArray(parsedData.skills) ? parsedData.skills.filter(s => s && s.trim()) : [""],
-        certifications: Array.isArray(parsedData.certifications) ? parsedData.certifications.filter(c => c && c.trim()) : [""],
-        currentCity: parsedData.currentCity || "",
-        previousJobTitle: parsedData.previousJobTitle || "",
+        educationLevel: parsedData.educationLevel || "Other",
+        customEducation: parsedData.customEducation || "",
+        desiredJobRole: parsedData.desiredJobRole || "Professional",
+        completedProjects: parsedData.completedProjects || "N/A",
+        skills: Array.isArray(parsedData.skills)
+          ? parsedData.skills.filter((skill) => skill && skill.trim())
+          : ["Not specified"],
+        certifications: Array.isArray(parsedData.certifications)
+          ? parsedData.certifications.filter((certification) => certification && certification.trim())
+          : ["N/A"],
+        currentCity: parsedData.currentCity || "Not specified",
+        previousJobTitle: parsedData.previousJobTitle || "N/A",
       };
 
-      if (safeData.skills.length === 0) safeData.skills = [""];
-      if (safeData.certifications.length === 0) safeData.certifications = [""];
-
-      if (onAutoFill) {
-        onAutoFill(safeData);
+      if (safeData.educationLevel === "Other" && !safeData.customEducation.trim()) {
+        safeData.customEducation = "Not specified";
       }
 
-      setProgress(90);
+      if (safeData.skills.length === 0) {
+        safeData.skills = ["Not specified"];
+      }
 
+      if (safeData.certifications.length === 0) {
+        safeData.certifications = ["N/A"];
+      }
+
+      onAutoFill?.(safeData);
+
+      setProgress(90);
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       setProgress(100);
-      setUploadStatus("✅ Resume parsed successfully!");
+      setUploadStatus("Resume parsed successfully!");
 
       setTimeout(() => {
         handleClose();
-        if (onExtract) {
-          onExtract(pdfText);
-        }
+        onExtract?.(pdfText || "");
       }, 1500);
-    } catch (err) {
-      console.error("PDF Upload Error:", err);
-      
-      if (err.message.includes("JSON")) {
-        setError(
-          "⚠️ Could not parse resume properly. Please try another PDF or fill manually."
-        );
-      } else if (err.message.includes("Failed to fetch") || err.message.includes("Network")) {
-        setError(
-          "⚠️ Network error. Check your connection and try again."
-        );
+    } catch (uploadError) {
+      console.error("PDF Upload Error:", uploadError);
+
+      if (uploadError.message.includes("Failed to fetch") || uploadError.message.includes("Network")) {
+        setError("Network error. Check your connection and try again.");
       } else {
-        setError(err.message);
+        setError(uploadError.message || "Failed to analyze resume. Please try again.");
       }
-      
+
       setProgress(0);
       setUploadStatus("");
     }
@@ -257,7 +390,6 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         onClick={(e) => e.stopPropagation()}
         className="pdf-upload-modal-card"
       >
-        {/* Close Button */}
         <button
           onClick={handleClose}
           style={{
@@ -277,23 +409,25 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
             borderRadius: "50%",
             transition: "background 0.2s",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#f3f4f6";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "none";
+          }}
         >
           ×
         </button>
 
-        {/* Header */}
         <div style={{ marginBottom: "24px" }}>
           <h2 style={{ margin: "0 0 8px", fontSize: "1.5rem", fontWeight: 700, color: "#0d1b3e" }}>
-            📄 Upload Your Resume
+            Upload Your Resume
           </h2>
           <p style={{ margin: 0, fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.5 }}>
             Our smart AI will extract your details automatically
           </p>
         </div>
 
-        {/* Upload Area */}
         {!uploadStatus && !error && (
           <div
             onDrop={handleDrop}
@@ -313,7 +447,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
           >
             {selectedFile ? (
               <div>
-                <div style={{ fontSize: "48px", marginBottom: "12px" }}>✅</div>
+                <div style={{ fontSize: "48px", marginBottom: "12px" }}>✓</div>
                 <div style={{ fontSize: "1rem", fontWeight: 600, color: "#16a34a", marginBottom: "4px" }}>
                   {selectedFile.name}
                 </div>
@@ -323,7 +457,9 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
               </div>
             ) : (
               <div>
-                <div style={{ fontSize: "48px", marginBottom: "12px" }}>📁</div>
+                <div style={{ fontSize: "42px", marginBottom: "12px", fontWeight: 700, color: "#0d1b3e" }}>
+                  PDF
+                </div>
                 <div style={{ fontSize: "1rem", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
                   Drag & drop your PDF
                 </div>
@@ -350,7 +486,6 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
           </div>
         )}
 
-        {/* File Input (hidden) */}
         <input
           ref={fileInputRef}
           type="file"
@@ -359,14 +494,12 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
           style={{ display: "none" }}
         />
 
-        {/* File Info */}
         {!uploadStatus && !error && (
           <p style={{ fontSize: "0.8rem", color: "#9ca3af", textAlign: "center", marginBottom: "24px" }}>
-            PDF only — Max 5MB
+            PDF only - Max 10MB
           </p>
         )}
 
-        {/* Progress Bar */}
         {uploadStatus && (
           <div style={{ marginBottom: "24px" }}>
             <p
@@ -401,7 +534,6 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div
             style={{
@@ -452,12 +584,11 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
           </div>
         )}
 
-        {/* Action Buttons */}
         {!error && (
           <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
             <button
               onClick={handleClose}
-              disabled={!!uploadStatus}
+              disabled={Boolean(uploadStatus)}
               style={{
                 padding: "12px 24px",
                 background: "#fff",
@@ -474,7 +605,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
             </button>
             <button
               onClick={handleUpload}
-              disabled={!selectedFile || !!uploadStatus}
+              disabled={!selectedFile || Boolean(uploadStatus)}
               style={{
                 padding: "12px 24px",
                 background: !selectedFile || uploadStatus ? "#9ca3af" : "#0d1b3e",
@@ -487,7 +618,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
                 transition: "background 0.2s",
               }}
             >
-              {uploadStatus ? "Processing..." : "Upload & Analyze →"}
+              {uploadStatus ? "Processing..." : "Upload & Analyze ->"}
             </button>
           </div>
         )}

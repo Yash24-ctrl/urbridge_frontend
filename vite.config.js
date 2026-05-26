@@ -43,6 +43,7 @@ function resetLinkTerminalPlugin() {
 export default defineConfig({
   plugins: [react(), resetLinkTerminalPlugin()],
   server: {
+    host: '0.0.0.0', // Allow access from network
     proxy: {
       // ✅ Forwards /api requests to your Express backend
       '/api': {
