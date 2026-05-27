@@ -9,19 +9,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MIN_TEXT_LENGTH = 50;
 
-function arrayBufferToBase64(arrayBuffer) {
-  const bytes = new Uint8Array(arrayBuffer);
-  const chunkSize = 0x8000;
-  let binary = "";
-
-  for (let index = 0; index < bytes.length; index += chunkSize) {
-    const chunk = bytes.subarray(index, index + chunkSize);
-    binary += String.fromCharCode(...chunk);
-  }
-
-  return btoa(binary);
-}
-
 function buildPageText(items = []) {
   const sortedItems = [...items]
     .filter((item) => item?.str && item.str.trim())
@@ -142,41 +129,8 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         return fullText;
       }
 
-      console.log("PDF.js extracted minimal text, trying OCR-aware backend extraction...");
-
-      const aiResponse = await fetch("/api/resume/extract-pdf-text", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${
-            localStorage.getItem("user")
-              ? JSON.parse(localStorage.getItem("user")).token
-              : ""
-          }`,
-        },
-        body: JSON.stringify({
-          pdfBase64: arrayBufferToBase64(arrayBuffer),
-          fileName: file.name,
-        }),
-      });
-
-      if (!aiResponse.ok) {
-        const errorData = await aiResponse.json().catch(() => ({}));
-        throw new Error(
-          errorData?.error ||
-          errorData?.message ||
-          "Could not extract text from PDF. Please make sure your PDF is not scanned or image-based."
-        );
-      }
-
-      const aiData = await aiResponse.json();
-      if (aiData?.text && aiData.text.trim().length >= MIN_TEXT_LENGTH) {
-        return aiData.text.trim();
-      }
-
-      throw new Error(
-        "Could not extract text from PDF. Please make sure your PDF is not scanned or image-based."
-      );
+      console.log("PDF.js returned minimal text; backend file upload fallback will be used.");
+      return fullText;
     } catch (extractionError) {
       console.error("PDF extraction error:", extractionError);
 
@@ -190,6 +144,36 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
 
       throw extractionError;
     }
+  };
+
+  const uploadPdfForExtraction = async (file) => {
+    const formData = new FormData();
+    formData.append("pdf", file, file.name);
+
+    const response = await fetch("/api/resume/upload-pdf", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData?.error ||
+        errorData?.message ||
+        "Could not extract text from PDF. Please make sure your PDF is not scanned or image-based."
+      );
+    }
+
+    const data = await response.json();
+    const extractedText = String(data?.text || "").trim();
+
+    if (extractedText.length < MIN_TEXT_LENGTH) {
+      throw new Error(
+        "Could not extract text from PDF. Please make sure your PDF is not scanned or image-based."
+      );
+    }
+
+    return extractedText;
   };
 
   const handleFileSelect = (file) => {
@@ -226,7 +210,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
     }
   };
 
-  const parseResumeWithAI = async ({ pdfText, pdfBase64, fileName }) => {
+  const parseResumeWithAI = async ({ pdfText, fileName }) => {
     let retries = 2;
 
     while (retries > 0) {
@@ -234,7 +218,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         const response = await fetch("/api/resume/parse-resume", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pdfText, pdfBase64, fileName }),
+          body: JSON.stringify({ pdfText, fileName }),
         });
 
         if (!response.ok) {
@@ -276,24 +260,28 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
       setProgress(20);
 
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const pdfBase64 = arrayBufferToBase64(arrayBuffer);
 
       let pdfText = "";
       try {
         pdfText = await extractTextFromPDF(selectedFile, arrayBuffer);
       } catch (textError) {
         console.warn(
-          "Local text extraction was incomplete. Continuing with PDF-aware AI parsing.",
+          "Local PDF.js extraction failed. Falling back to backend PDF upload.",
           textError
         );
       }
 
-      setProgress(50);
+      if (!pdfText || pdfText.trim().length < MIN_TEXT_LENGTH) {
+        setProgress(45);
+        setUploadStatus("Extracting text from your PDF...");
+        pdfText = await uploadPdfForExtraction(selectedFile);
+      }
+
+      setProgress(60);
       setUploadStatus("AI is analyzing your resume...");
 
       const parsedData = await parseResumeWithAI({
         pdfText,
-        pdfBase64: pdfText.trim().length >= MIN_TEXT_LENGTH ? "" : pdfBase64,
         fileName: selectedFile.name,
       });
 
