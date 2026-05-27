@@ -147,6 +147,10 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
   };
 
   const uploadPdfForExtraction = async (file) => {
+    if (!(file instanceof File)) {
+      throw new Error("No PDF file provided.");
+    }
+
     const formData = new FormData();
     formData.append("pdf", file, file.name);
     const user = JSON.parse(localStorage.getItem("user"));
@@ -155,7 +159,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
     const response = await fetch("/api/resume/upload-pdf", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
       },
       body: formData,
     });
