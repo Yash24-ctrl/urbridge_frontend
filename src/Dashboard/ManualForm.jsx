@@ -386,6 +386,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
           </label>
           <select id="education" name="education" className="dashboard-input" onChange={handleChange} value={form.education}>
             <option value="" disabled>Select education level</option>
+            <option value="High School">High School</option>
             <option value="Diploma">Diploma</option>
             <option value="Bachelor's">Bachelor&apos;s</option>
             <option value="Master's">Master&apos;s</option>

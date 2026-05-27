@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./PDFUploadModal.css";
 
 import * as pdfjsLib from "pdfjs-dist";
@@ -62,6 +62,20 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedFile(null);
+      setError("");
+      setUploadStatus("");
+      setProgress(0);
+      setIsDragging(false);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
@@ -313,7 +327,7 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
         certifications: Array.isArray(parsedData.certifications)
           ? parsedData.certifications.filter((certification) => certification && certification.trim())
           : ["N/A"],
-        currentCity: parsedData.currentCity || "Not specified",
+        currentCity: parsedData.currentCity || "",
         previousJobTitle: parsedData.previousJobTitle || "N/A",
       };
 
@@ -360,6 +374,12 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
     setUploadStatus("");
     setProgress(0);
     setError("");
+    setIsDragging(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
     onClose();
   };
 
@@ -571,6 +591,9 @@ export default function PDFUploadModal({ isOpen, onClose, onExtract, onAutoFill 
                 onClick={() => {
                   setError("");
                   setSelectedFile(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
                 }}
                 style={{
                   padding: "8px 16px",
