@@ -1,13 +1,10 @@
 import { useState, useContext } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import API from "../api/axios";
 import { AuthContext } from "../context/auth-context";
+import { configurePdfJsWorker } from "../utils/configurePdfJsWorker";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
+configurePdfJsWorker();
 
 export default function UploadCV({ setScore, setSuggestions }) {
   const { user } = useContext(AuthContext);

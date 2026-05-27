@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import "./PDFUploadModal.css";
 
 import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { configurePdfJsWorker } from "../utils/configurePdfJsWorker";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+configurePdfJsWorker();
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MIN_TEXT_LENGTH = 50;
