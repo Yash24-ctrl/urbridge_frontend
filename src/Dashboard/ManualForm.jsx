@@ -28,7 +28,52 @@ const ALL_SKILLS = [
   "documentation", "agile", "scrum", "jira", "figma", "photoshop",
 ];
 
-export default function ManualForm({ setScore, setSuggestions, setFormData, setProfileType, setScoreBreakdown, setStrongPoints }) {
+const cleanProjectHeadline = (value = "") =>
+  String(value)
+    .replace(/^\s*(?:[-*]|\u2022|\d+[.)])\s+/, "")
+    .replace(/^(?:project|capstone|academic project|personal project)\s*\d*\s*[:.-]\s*/i, "")
+    .replace(/^(?:title|name)\s*[:.-]\s*/i, "")
+    .replace(/\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+\d{4}\s*$/i, "")
+    .replace(/\s+(?:19|20)\d{2}\s*$/i, "")
+    .replace(/\s*[\-|:\u2013\u2014]\s*$/, "")
+    .split(/\s+\|\s+|\s+-\s+|\s+\u2013\s+|\s+\u2014\s+|:\s+|\s+(?:description|technologies|tech stack|tools used|github|link)\s*[:.-]/i)[0]
+    .trim();
+
+const parseProjectHeadlines = (value) => {
+  const rawProjects = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .replace(/\r/g, "\n")
+        .replace(/\u2022/g, "\n")
+        .split(/\s*\|\s*|\n+|(?=\bproject\s*\d+\s*[:.)-])/i);
+
+  const seen = new Set();
+  const projects = [];
+
+  rawProjects.forEach((project) => {
+    const cleaned = cleanProjectHeadline(project);
+    const key = cleaned.toLowerCase();
+    if (cleaned && !seen.has(key)) {
+      seen.add(key);
+      projects.push(cleaned);
+    }
+  });
+
+  return projects.length > 0 ? projects : [""];
+};
+
+const joinProjectHeadlines = (projects = []) =>
+  parseProjectHeadlines(projects).filter(Boolean).join(" | ");
+
+export default function ManualForm({
+  setScore,
+  setSuggestions,
+  setFormData,
+  setProfileType,
+  setScoreBreakdown,
+  setStrongPoints,
+  setDiagnostics,
+}) {
   const { user } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
@@ -42,7 +87,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
     education: "",
     customEducation: "",
     certifications: [""],
-    completedProjects: "",
+    completedProjects: [""],
     desiredJobRoles: "",
     currentCity: "",
     previousJobTitle: "",
@@ -75,7 +120,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
           education: data.educationLevel || "",
           customEducation: data.customEducation || "",
           certifications: data.certifications?.length > 0 ? data.certifications : [""],
-          completedProjects: data.completedProjects || "",
+          completedProjects: parseProjectHeadlines(data.completedProjects),
           desiredJobRoles: data.desiredJobRole || "",
           currentCity: data.currentCity || "",
           previousJobTitle: data.previousJobTitle || "",
@@ -223,6 +268,37 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
     }
   };
 
+  // Projects
+  const handleProjectChange = (index, value) => {
+    const updated = [...form.completedProjects];
+    updated[index] = cleanProjectHeadline(value);
+    setForm((prev) => ({ ...prev, completedProjects: updated }));
+    setErrors((prev) => ({ ...prev, completedProjects: "" }));
+  };
+
+  const addProjectField = () => {
+    if (!form.completedProjects[form.completedProjects.length - 1].trim()) return;
+    setForm((prev) => ({ ...prev, completedProjects: [...prev.completedProjects, ""] }));
+  };
+
+  const removeProjectField = (indexToRemove) => {
+    if (form.completedProjects.length <= 1) return;
+    setForm((prev) => ({
+      ...prev,
+      completedProjects: prev.completedProjects.filter((_, i) => i !== indexToRemove),
+    }));
+  };
+
+  const handleProjectKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (form.completedProjects[form.completedProjects.length - 1].trim()) {
+        addProjectField();
+        setTimeout(() => document.getElementById(`project-${form.completedProjects.length}`)?.focus(), 0);
+      }
+    }
+  };
+
   // Analyze
   const analyzeForm = async () => {
     setIsLoading(true);
@@ -268,7 +344,8 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
         );
       }
 
-      if (!form.completedProjects.trim()) nextErrors.completedProjects = "Completed Projects is required";
+      const filledProjects = form.completedProjects.map(cleanProjectHeadline).filter(Boolean);
+      if (!filledProjects.length) nextErrors.completedProjects = "At least one project headline is required";
       if (!form.desiredJobRoles.trim()) nextErrors.desiredJobRoles = "Desired Job Roles is required";
       if (!form.currentCity.trim()) nextErrors.currentCity = "Current City is required";
       if (!form.previousJobTitle.trim()) nextErrors.previousJobTitle = "Previous Job Title is required";
@@ -289,7 +366,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
         education: form.education,
         customEducation: form.customEducation,
         certifications: form.certifications.map((item) => item.trim()).filter(Boolean),
-        completedProjects: form.completedProjects,
+        completedProjects: joinProjectHeadlines(form.completedProjects),
         desiredJobRoles: form.desiredJobRoles,
         currentCity: form.currentCity,
         previousJobTitle: form.previousJobTitle,
@@ -302,6 +379,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
       setProfileType(data.profileType || null);
       setScoreBreakdown(data.scoreBreakdown || null);
       setStrongPoints(data.strongPoints || []);
+      setDiagnostics(data.diagnostics || null);
       setApiError("");
     } catch (err) {
       console.error("Resume analysis error:", err);
@@ -321,7 +399,7 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
       (form.education !== "Other" || form.customEducation.trim() !== "") &&
       form.skills.some((s) => s.trim() !== "") &&
       form.certifications.some((c) => c.trim() !== "") &&
-      form.completedProjects.trim() !== "" &&
+      form.completedProjects.some((project) => cleanProjectHeadline(project) !== "") &&
       form.desiredJobRoles.trim() !== "" &&
       form.currentCity.trim() !== "" &&
       form.previousJobTitle.trim() !== "";
@@ -418,12 +496,40 @@ export default function ManualForm({ setScore, setSuggestions, setFormData, setP
 
         {/* Projects */}
         <div className="dashboard-field dashboard-field-full">
-          <label htmlFor="completedProjects" style={{ display: "flex", alignItems: "center" }}>
-            Completed Projects
-            <ParsedBadge field="completedProjects" />
-          </label>
-          <input id="completedProjects" name="completedProjects" type="text" placeholder="Describe your Project"
-            className="dashboard-input" value={form.completedProjects} maxLength={300} onChange={handleChange} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", flexWrap: "wrap" }}>
+            <label htmlFor="project-0" style={{ display: "flex", alignItems: "center" }}>
+              Completed Projects
+              <ParsedBadge field="completedProjects" />
+            </label>
+            <button type="button" onClick={addProjectField}
+              disabled={!form.completedProjects[form.completedProjects.length - 1].trim()}
+              style={{ width: "28px", height: "28px", borderRadius: "50%", border: "1px solid rgba(15, 23, 42, 0.25)",
+                background: "#ffffff", color: "#0f52ba", fontSize: "18px", fontWeight: "700",
+                cursor: !form.completedProjects[form.completedProjects.length - 1].trim() ? "not-allowed" : "pointer",
+                lineHeight: 1, opacity: !form.completedProjects[form.completedProjects.length - 1].trim() ? 0.5 : 1 }}
+              aria-label="Add project field">+
+            </button>
+          </div>
+
+          {form.completedProjects.map((project, index) => (
+            <div key={index} style={{ marginBottom: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <input id={`project-${index}`} name={`project-${index}`} type="text"
+                  placeholder={`e.g. Project ${index + 1} headline`} className="dashboard-input" style={{ flex: 1 }}
+                  value={project} maxLength={140}
+                  onChange={(e) => handleProjectChange(index, e.target.value)}
+                  onKeyDown={handleProjectKeyDown} />
+                {form.completedProjects.length > 1 && (
+                  <button type="button" onClick={() => removeProjectField(index)}
+                    style={{ width: "36px", height: "36px", borderRadius: "50%", border: "1px solid rgba(15, 23, 42, 0.25)",
+                      background: "#ffffff", color: "#b42318", fontSize: "20px", fontWeight: "700",
+                      cursor: "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}
+                    aria-label="Remove project field">-
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
           {errors.completedProjects && <small style={{ color: "#b42318", fontWeight: 600 }}>{errors.completedProjects}</small>}
         </div>
 

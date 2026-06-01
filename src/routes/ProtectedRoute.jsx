@@ -8,9 +8,9 @@ export default function ProtectedRoute({ children }) {
   if (!user) {
     return (
       <Navigate
-        to="/login"
+        to="/register"
         replace
-        state={{ message: "Please sign in again to continue." }}
+        state={{ message: "Please create an account or sign in to continue." }}
       />
     );
   }

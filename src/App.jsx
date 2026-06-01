@@ -35,7 +35,7 @@ export default function App() {
       <Routes>
         <Route
           path="/"
-          element={<Navigate to="/login" replace />}
+          element={<Navigate to="/register" replace />}
         />
 
         {/* ================= PUBLIC ================= */}
@@ -63,7 +63,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* ================= FALLBACK ================= */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/register" replace />} />
 
       </Routes>
     </BrowserRouter>

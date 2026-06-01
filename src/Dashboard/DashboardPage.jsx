@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [profileType, setProfileType] = useState(null);
   const [scoreBreakdown, setScoreBreakdown] = useState(null);
   const [strongPoints, setStrongPoints] = useState([]);
+  const [diagnostics, setDiagnostics] = useState(null);
   const [isPDFModalOpen, setIsPDFModalOpen] = useState(false);
   const [manualFormResetKey, setManualFormResetKey] = useState(0);
 
@@ -56,6 +57,7 @@ export default function DashboardPage() {
     setProfileType(null);
     setScoreBreakdown(null);
     setStrongPoints([]);
+    setDiagnostics(null);
     window.pdfParsedData = null;
     setManualFormResetKey((currentValue) => currentValue + 1);
   };
@@ -181,6 +183,7 @@ export default function DashboardPage() {
             setProfileType={setProfileType}
             setScoreBreakdown={setScoreBreakdown}
             setStrongPoints={setStrongPoints}
+            setDiagnostics={setDiagnostics}
           />
         </div>
 
@@ -193,7 +196,17 @@ export default function DashboardPage() {
                 type="button"
                 className="dashboard-button"
                 style={{ marginTop: "18px", alignSelf: "flex-start", gridColumn: "1 / -1" }}
-                onClick={() => downloadReport({ score, suggestions, formData })}
+                onClick={() =>
+                  downloadReport({
+                    score,
+                    suggestions,
+                    formData,
+                    profileType,
+                    scoreBreakdown,
+                    strongPoints,
+                    diagnostics,
+                  })
+                }
               >
                 Download report
               </button>

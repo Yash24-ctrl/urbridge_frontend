@@ -334,65 +334,67 @@ Return ONLY this exact JSON (no markdown, no explanation, no extra text):
 
       // Header
       doc.setFillColor(13, 27, 62);
-      doc.rect(0, 0, pageWidth, 30, "F");
-      doc.setFontSize(16);
+      doc.rect(0, 0, pageWidth, 36, "F");
+      doc.setFontSize(20);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 255, 255);
-      doc.text("UrBridge.ai — Interview Prep Report", margin, 18);
-      doc.setFontSize(8);
+      doc.text("UrBridge.ai - Interview Prep Report", margin, 20);
+      doc.setFontSize(10.5);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150, 180, 255);
-      doc.text(`Field: ${selectedField}  |  Score: ${score}/${questions.length}  |  ${new Date().toLocaleDateString()}`, margin, 25);
-      y = 40;
+      doc.text(`Field: ${selectedField}  |  Score: ${score}/${questions.length}  |  ${new Date().toLocaleDateString()}`, margin, 29);
+      y = 48;
 
       // Score summary
-      doc.setFontSize(13);
+      doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(13, 27, 62);
-      doc.text(`Quiz Results — ${selectedField}`, margin, y); y += 8;
-      doc.setFontSize(10);
+      doc.text(`Quiz Results - ${selectedField}`, margin, y); y += 10;
+      doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(71, 85, 105);
       const percentage = Math.round((score / questions.length) * 100);
-      doc.text(`You scored ${score} out of ${questions.length} questions correctly (${percentage}%).`, margin, y); y += 12;
+      doc.text(`You scored ${score} out of ${questions.length} questions correctly (${percentage}%).`, margin, y); y += 16;
 
       // Quiz review table
-      doc.setFontSize(11);
+      doc.setFontSize(13);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(13, 27, 62);
-      doc.text("Quiz Review", margin, y); y += 6;
+      doc.text("Quiz Review", margin, y); y += 8;
 
       results.forEach((r, i) => {
-        const qLines = doc.splitTextToSize(`${i + 1}. ${r.question}`, contentWidth - 4);
-        const rowH = Math.max(14, qLines.length * 5 + 8);
+        const qLines = doc.splitTextToSize(`${i + 1}. ${r.question}`, contentWidth - 8);
+        const rowH = Math.max(24, qLines.length * 6.6 + 14);
         checkPage(rowH + 4);
         doc.setFillColor(i % 2 === 0 ? 248 : 255, i % 2 === 0 ? 249 : 255, i % 2 === 0 ? 252 : 255);
         doc.rect(margin, y, contentWidth, rowH, "F");
         doc.setDrawColor(226, 232, 244);
         doc.setLineWidth(0.2);
         doc.rect(margin, y, contentWidth, rowH, "S");
-        doc.setFontSize(8.5);
+        doc.setFontSize(10.8);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(13, 27, 62);
-        qLines.forEach((line, li) => doc.text(line, margin + 2, y + 5 + li * 5));
-        const ansY = y + rowH - 5;
+        qLines.forEach((line, li) => doc.text(line, margin + 4, y + 7 + li * 6.6));
+        const ansY = y + rowH - 6;
         doc.setFont("helvetica", "bold");
-        if (r.isTimeout) { doc.setTextColor(217, 119, 6); doc.text("⏱ Timeout", margin + 2, ansY); }
-        else if (r.isCorrect) { doc.setTextColor(22, 163, 74); doc.text("✓ Correct", margin + 2, ansY); }
-        else { doc.setTextColor(220, 38, 38); doc.text("✗ Wrong", margin + 2, ansY); }
+        doc.setFontSize(10);
+        if (r.isTimeout) { doc.setTextColor(217, 119, 6); doc.text("Timeout", margin + 4, ansY); }
+        else if (r.isCorrect) { doc.setTextColor(22, 163, 74); doc.text("Correct", margin + 4, ansY); }
+        else { doc.setTextColor(220, 38, 38); doc.text("Wrong", margin + 4, ansY); }
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
         doc.setTextColor(71, 85, 105);
-        const corrLines = doc.splitTextToSize(`Correct: ${r.correct}`, contentWidth - 40);
-        doc.text(corrLines[0], margin + 30, ansY);
-        y += rowH + 2;
+        const corrLines = doc.splitTextToSize(`Correct: ${r.correct}`, contentWidth - 52);
+        doc.text(corrLines[0], margin + 42, ansY);
+        y += rowH + 4;
       });
 
       // Interview Questions sections
       doc.addPage(); y = 20;
-      doc.setFontSize(14);
+      doc.setFontSize(17);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(13, 27, 62);
-      doc.text(`Interview Questions — ${selectedField}`, margin, y); y += 10;
+      doc.text(`Interview Questions - ${selectedField}`, margin, y); y += 13;
 
       const sections = [
         { label: "Easy Questions", color: [22, 163, 74], bg: [220, 252, 231], qs: interviewQsData.easy || [] },
@@ -402,30 +404,30 @@ Return ONLY this exact JSON (no markdown, no explanation, no extra text):
 
       sections.forEach((sec) => {
         if (!sec.qs.length) return;
-        checkPage(16);
+        checkPage(20);
         doc.setFillColor(...sec.bg);
-        doc.rect(margin, y, contentWidth, 9, "F");
-        doc.setFontSize(10);
+        doc.rect(margin, y, contentWidth, 12, "F");
+        doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(...sec.color);
-        doc.text(`● ${sec.label} (${sec.qs.length})`, margin + 3, y + 6);
-        y += 12;
+        doc.text(`${sec.label} (${sec.qs.length})`, margin + 4, y + 8);
+        y += 16;
 
         sec.qs.forEach((q, i) => {
-          const lines = doc.splitTextToSize(`${i + 1}. ${q}`, contentWidth - 8);
-          const h = Math.max(10, lines.length * 5 + 6);
+          const lines = doc.splitTextToSize(`${i + 1}. ${q}`, contentWidth - 10);
+          const h = Math.max(18, lines.length * 6.8 + 10);
           checkPage(h + 4);
           doc.setFillColor(255, 255, 255);
           doc.setDrawColor(226, 232, 244);
           doc.setLineWidth(0.2);
           doc.rect(margin, y, contentWidth, h, "FD");
-          doc.setFontSize(9.5);
+          doc.setFontSize(11);
           doc.setFont("helvetica", "normal");
           doc.setTextColor(13, 27, 62);
-          lines.forEach((line, li) => doc.text(line, margin + 4, y + 5 + li * 5));
-          y += h + 3;
+          lines.forEach((line, li) => doc.text(line, margin + 5, y + 7 + li * 6.8));
+          y += h + 4;
         });
-        y += 4;
+        y += 6;
       });
 
       // Footer on all pages
@@ -434,10 +436,10 @@ Return ONLY this exact JSON (no markdown, no explanation, no extra text):
         doc.setPage(p);
         doc.setFillColor(13, 27, 62);
         doc.rect(0, 289, pageWidth, 8, "F");
-        doc.setFontSize(7);
+        doc.setFontSize(8.5);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(255, 255, 255);
-        doc.text("Generated by UrBridge.ai — Interview Prep", margin, 294);
+        doc.text("Generated by UrBridge.ai - Interview Prep", margin, 294);
         const pageStr = `Page ${p} of ${total}`;
         doc.text(pageStr, pageWidth - margin - doc.getTextWidth(pageStr), 294);
       }
