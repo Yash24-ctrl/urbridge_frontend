@@ -72,9 +72,13 @@ export default function DashboardPage() {
       <div className="dashboard-shell">
         <section className="dashboard-hero">
           <div className="dashboard-hero-copy">
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-              <img src={logo} style={{ height: "30px", objectFit: "contain" }}/>
-              <span className="dashboard-eyebrow" style={{ fontSize:"16px" }}>UrBridge.ai</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "18px" }}>
+              <img
+                src={logo}
+                alt="UrBridgeAI"
+                className="dashboard-brand-logo"
+                style={{ width: "min(280px, 72vw)", height: "auto", objectFit: "contain" }}
+              />
             </div>
             <h1>Turn your resume into a stronger first impression.</h1>
             <p>

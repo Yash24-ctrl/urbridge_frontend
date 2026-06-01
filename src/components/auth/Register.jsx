@@ -149,16 +149,20 @@ export default function Register() {
                 <div className="card-body p-4 p-md-5">
                   {/* Header */}
                   <div className="text-center mb-4">
-                    <div className="logo-circle mb-3">
+                    <div className="brand-logo mb-3">
                       <img
                         src={logo}
-                        style={{ height: "90px", objectFit: "contain" }}
+                        alt="UrBridgeAI"
+                        style={{
+                          width: "min(340px, 82vw)",
+                          height: "auto",
+                          display: "block",
+                          margin: "0 auto",
+                          objectFit: "contain",
+                        }}
                         className="img-fluid"
                       />
                     </div>
-                    <h2 className="card-title mb-2 fw-bold text-black">
-                      UrBridge.ai
-                    </h2>
                     <p className="text-black mb-0">Join the UrBridge.ai</p>
                   </div>
 
@@ -443,12 +447,10 @@ export default function Register() {
             padding: 1rem !important;
           }
           
-          .logo-circle img {
-            height: 60px !important;
-          }
-          
-          .card-title {
-            font-size: 1.35rem !important;
+          .brand-logo img {
+            display: block;
+            margin: 0 auto;
+            width: min(260px, 82vw) !important;
           }
           
           .password-rule {

@@ -98,19 +98,18 @@ export default function ForgotPassword() {
                     }}>
                         <div className="card-body p-4 p-md-5">
                             <div className="text-center mb-4">
-                                <div className="logo-circle mb-3">
+                                <div className="brand-logo mb-3">
                                     <img
                                         src={logo}
+                                        alt="UrBridgeAI"
                                         style={{
-                                            height: "90px",
+                                            width: "min(340px, 82vw)",
+                                            height: "auto",
                                             objectFit: "contain",
                                         }}
                                         className="img-fluid"
                                     />
                                 </div>
-                                <h2 className="card-title mb-2 fw-bold text-black">
-                                    UrBridge.ai
-                                </h2>
                                 <p className="text-black mb-0">Reset your password</p>
                             </div>
 
@@ -211,12 +210,8 @@ export default function ForgotPassword() {
                         padding: 1rem !important;
                     }
 
-                    .logo-circle img {
-                        height: 60px !important;
-                    }
-
-                    .card-title {
-                        font-size: 1.35rem !important;
+                    .brand-logo img {
+                        width: min(260px, 82vw) !important;
                     }
 
                     .form-control.form-control-lg {

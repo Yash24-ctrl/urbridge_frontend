@@ -138,19 +138,20 @@ export default function Login() {
                 <div className="card-body p-4 p-md-5">
                   {/* Header */}
                   <div className="text-center mb-4">
-                    <div className="logo-circle mb-3">
+                    <div className="brand-logo mb-3">
                       <img
                         src={logo}
+                        alt="UrBridgeAI"
                         style={{
-                          height: "90px",
+                          width: "min(340px, 82vw)",
+                          height: "auto",
+                          display: "block",
+                          margin: "0 auto",
                           objectFit: "contain",
                         }}
                         className="img-fluid"
                       />
                     </div>
-                    <h2 className="card-title mb-2 fw-bold text-black">
-                      UrBridge.ai
-                    </h2>
                     <p className="text-black mb-0">Sign in to your account</p>
                   </div>
 
@@ -389,12 +390,10 @@ export default function Login() {
             padding: 1rem !important;
           }
           
-          .logo-circle img {
-            height: 60px !important;
-          }
-          
-          .card-title {
-            font-size: 1.35rem !important;
+          .brand-logo img {
+            display: block;
+            margin: 0 auto;
+            width: min(260px, 82vw) !important;
           }
 
           .text-end {

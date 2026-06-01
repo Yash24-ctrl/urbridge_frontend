@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import styles from "./InterviewPrep.module.css";
 import { useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
+import logo from "../../Icon.png";
 
 const TIMER_SECONDS = 20;
 
@@ -481,7 +482,7 @@ Return ONLY this exact JSON (no markdown, no explanation, no extra text):
     <>
       <header className={styles.topbar}>
         <a href="#" className={styles.topbarLogo}>
-          Ur<span>Bridge</span>.ai
+          <img src={logo} alt="UrBridgeAI" />
         </a>
         <div className={styles.topbarRight}>
           <span className={styles.topbarPill}>Interview Prep</span>
