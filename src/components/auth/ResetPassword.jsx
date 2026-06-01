@@ -57,8 +57,10 @@ export default function ResetPassword() {
                                         src={logo}
                                         alt="UrBridgeAI"
                                         style={{
-                                            width: "min(340px, 82vw)",
+                                            width: "clamp(220px, 36vw, 320px)",
                                             height: "auto",
+                                            display: "block",
+                                            margin: "0 auto",
                                             objectFit: "contain",
                                         }}
                                         className="img-fluid"
@@ -172,7 +174,7 @@ export default function ResetPassword() {
                     }
 
                     .brand-logo img {
-                        width: min(260px, 82vw) !important;
+                        width: min(210px, 70vw) !important;
                     }
 
                     .form-control.form-control-lg {

@@ -154,7 +154,7 @@ export default function Register() {
                         src={logo}
                         alt="UrBridgeAI"
                         style={{
-                          width: "min(340px, 82vw)",
+                          width: "clamp(220px, 36vw, 320px)",
                           height: "auto",
                           display: "block",
                           margin: "0 auto",
@@ -450,7 +450,7 @@ export default function Register() {
           .brand-logo img {
             display: block;
             margin: 0 auto;
-            width: min(260px, 82vw) !important;
+            width: min(210px, 70vw) !important;
           }
           
           .password-rule {

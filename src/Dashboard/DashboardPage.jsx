@@ -89,7 +89,6 @@ export default function DashboardPage() {
                 src={logo}
                 alt="UrBridgeAI"
                 className="dashboard-brand-logo"
-                style={{ width: "min(280px, 72vw)", height: "auto", objectFit: "contain" }}
               />
             </div>
             <h1>Turn your resume into a stronger first impression.</h1>

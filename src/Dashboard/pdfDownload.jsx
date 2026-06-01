@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import brandLogoUrl from "../Icon.png";
 
 const PAGE = {
   width: 210,
@@ -31,11 +32,13 @@ const COLORS = {
 };
 
 const ACTION_PRIORITIES = [
-  "FIX NOW",
-  "FIX NOW",
-  "IMPROVE SOON",
-  "IMPROVE SOON",
-  "POLISH LATER",
+  "Fix Now",
+  "Fix Now",
+  "Improve Soon",
+  "Improve Soon",
+  "Improve Soon",
+  "Polish Later",
+  "Polish Later",
 ];
 
 const SKILL_TRENDS = {
@@ -586,10 +589,7 @@ function buildFallbackBreakdown(formData = {}, diagnostics = {}) {
 }
 
 function pickMissingSkills(formData = {}, diagnostics = {}, roleProfile = null) {
-  const profile = roleProfile || resolveRoleProfile(getRoleLabel(formData, diagnostics));
-  const knownMissing = fieldSpecificSkills(diagnostics.missingSkills);
-  const roleMissing = getProfileMissingSkills(safeArray(formData.skills), profile);
-  return fieldSpecificSkills([...knownMissing, ...roleMissing]).slice(0, 8);
+  return fieldSpecificSkills(diagnostics.missingSkills).slice(0, 8);
 }
 
 function truncateText(value = "", maxLength = 76) {
@@ -619,29 +619,25 @@ function getMatchedSkillText(report, roleProfile, limit = 3) {
   if (matchedSkills.length > 0) return matchedSkills.slice(0, limit).join(", ");
 
   const resumeSkills = fieldSpecificSkills(report.resumeSkills);
-  if (resumeSkills.length > 0) return resumeSkills.slice(0, limit).join(", ");
+  return resumeSkills.length > 0 ? resumeSkills.slice(0, limit).join(", ") : "no field-specific skills listed yet";
+}
 
-  const roleSkills = getRoleCoreSkills(roleProfile);
-  return roleSkills.length > 0 ? roleSkills.slice(0, limit).join(", ") : "no field-specific skills listed yet";
+function getListedSkillText(report, limit = 4) {
+  const resumeSkills = fieldSpecificSkills(report.resumeSkills);
+  return resumeSkills.length > 0 ? resumeSkills.slice(0, limit).join(", ") : "";
 }
 
 function getMissingSkillText(report, roleProfile, limit = 3) {
   const missingSkills = fieldSpecificSkills(report.missingSkills);
-  if (missingSkills.length > 0) return missingSkills.slice(0, limit).join(", ");
-
-  const roleSkills = getRoleCoreSkills(roleProfile).filter(
-    (skill) => !fieldSpecificSkills(report.resumeSkills).some((resumeSkill) => skillMatches(resumeSkill, skill))
-  );
-  return roleSkills.length > 0 ? roleSkills.slice(0, limit).join(", ") : "the exact tools requested in the target JD";
+  return missingSkills.length > 0 ? missingSkills.slice(0, limit).join(", ") : "";
 }
 
 function getPrimaryFieldSkill(report, roleProfile) {
   return (
     fieldSpecificSkills(report.missingSkills)[0] ||
     fieldSpecificSkills(report.matchedSkills)[0] ||
-    getRoleCoreSkills(roleProfile)[0] ||
     fieldSpecificSkills(report.resumeSkills)[0] ||
-    "a verified field tool"
+    ""
   );
 }
 
@@ -674,51 +670,61 @@ function buildSkillSuggestionBody(report, roleProfile) {
   const matchedText = getMatchedSkillText(report, roleProfile);
   const missingText = getMissingSkillText(report, roleProfile);
   const primarySkill = getPrimaryFieldSkill(report, roleProfile);
+  const projectReference = getProjectReference(report);
 
   if (missingSkills.length > 0) {
-    return `In Skills, you already show ${matchedText}; add proof for missing ${missingText}. Example: "${primarySkill} - used in ${getProjectReference(report)}" for ${roleProfile.label}.`;
+    return `In Skills, keep ${matchedText}. Add missing ${missingText} only with evidence, e.g. "${missingSkills[0]} - used in ${projectReference}".`;
   }
 
-  return `In Skills, ${matchedText} fits ${roleProfile.label}. Add where each was used, e.g. "${primarySkill} - applied in ${getProjectReference(report)}".`;
+  if (!primarySkill) {
+    return `Skills section has no field-specific skill detected. Add only real tools from Projects or Experience for ${roleProfile.label}; do not add random skills.`;
+  }
+
+  return `No missing skills were detected. Do not add random skills; show where ${primarySkill || matchedText} was used in ${projectReference}.`;
 }
 
 function buildProjectSuggestionBody(report, roleProfile) {
   const projectReference = getProjectReference(report);
   const primarySkill = getPrimaryFieldSkill(report, roleProfile);
-  const missingText = getMissingSkillText(report, roleProfile, 2);
   const metricExamples = getRoleMetricExamples(roleProfile);
+  const listedSkills = getListedSkillText(report, 3);
 
+  if (!report.projectText) {
+    return `Projects section is empty. Add one real ${roleProfile.label} project and list only tools you actually used${listedSkills ? ` from Skills: ${listedSkills}` : ""}.`;
+  }
   if (report.projectSignals.wordCount < 25) {
-    return `${projectReference}. Add one ${roleProfile.label} project using ${missingText}; include ${metricExamples} so the project proves field readiness.`;
+    return `${projectReference} is too short. Add problem, your exact task, ${primarySkill || "one listed skill"}, and the real result for ${roleProfile.label}.`;
   }
-
   if (!report.projectSignals.hasMetrics) {
-    return `In ${projectReference}, add ${metricExamples} and mention ${primarySkill}; this shows ${roleProfile.label} impact instead of only task description.`;
+    return `In ${projectReference}, add one true result number such as ${metricExamples}; keep it tied to ${primarySkill || "the skill used"}.`;
   }
-
   if (!report.projectSignals.hasResultLanguage) {
-    return `In ${projectReference}, connect the result to ${primarySkill}; example: "used ${primarySkill} to deliver ${metricExamples}" for ${roleProfile.label}.`;
+    return `In ${projectReference}, connect the result to ${primarySkill || "the listed tool"}; example: "Used ${primarySkill || "this tool"} to deliver [real result]".`;
   }
 
-  return `In ${projectReference}, keep the existing proof and add your exact contribution with ${primarySkill}; recruiters need ownership evidence for ${roleProfile.label}.`;
+  return `In ${projectReference}, keep the proof and add your exact contribution with ${primarySkill || "the main skill used"} for ${roleProfile.label}.`;
 }
 
 function buildEducationSuggestionBody(report, roleProfile) {
-  const certTargets = formatCompactList(roleProfile.certifications, 2, "one certificate named in the target JD");
   const educationLabel = report.educationLabel || "Education";
   const missingText = getMissingSkillText(report, roleProfile, 2);
+  const primarySkill = getPrimaryFieldSkill(report, roleProfile);
+  const educationProof = missingText || primarySkill || roleProfile.label;
 
   if (/high school|diploma|other/i.test(educationLabel)) {
-    return `Education shows ${educationLabel}. Add coursework or ${certTargets} tied to ${missingText}; it gives ${roleProfile.label} proof beyond degree level.`;
+    return `Education shows ${educationLabel}. Add real coursework/project proof for ${educationProof}; do not add unrelated courses.`;
   }
 
-  return `Education shows ${educationLabel}. Add institute/year plus coursework in ${missingText}; add ${certTargets} if it is true for ${roleProfile.label}.`;
+  return `Education shows ${educationLabel}. Add institute, year, and coursework only if it proves ${educationProof} for ${roleProfile.label}.`;
 }
 
 function buildRoleSuggestionBody(report, roleProfile) {
-  const matchedText = getMatchedSkillText(report, roleProfile);
+  const matchedText = fieldSpecificSkills(report.matchedSkills).slice(0, 3).join(", ");
+  const listedText = getListedSkillText(report, 3);
+  const headlineProof = matchedText || listedText || "your strongest proven field skill";
   const missingText = getMissingSkillText(report, roleProfile, 2);
-  return `Target role is "${report.targetRole}". Set Summary headline to "${roleProfile.label} | ${matchedText}" and add ${missingText} only with real proof.`;
+  const missingClause = missingText ? `; add ${missingText} only after you can prove it` : "; do not add unproven skills";
+  return `Target role is "${report.targetRole}". Change Summary to "${roleProfile.label} | ${headlineProof}"${missingClause}.`;
 }
 
 function buildExperienceSuggestionBody(report, roleProfile) {
@@ -726,10 +732,34 @@ function buildExperienceSuggestionBody(report, roleProfile) {
   const metricExamples = getRoleMetricExamples(roleProfile);
 
   if (report.experience === 0 || /student|fresher|n\/?a/i.test(report.previousJobTitle)) {
-    return `Previous Job Title is "${report.previousJobTitle}". Add an internship, academic, or freelance title using ${primarySkill}; this connects your resume to ${roleProfile.label}.`;
+    return `Previous Job Title is "${report.previousJobTitle}". Add a real internship, academic, or freelance title using ${primarySkill || "your listed skill"} if true.`;
   }
 
-  return `Previous Job Title is "${report.previousJobTitle}". Add a latest-role bullet: "Used ${primarySkill} to improve ${metricExamples}" for ${roleProfile.label}.`;
+  return `Previous Job Title is "${report.previousJobTitle}". Add one bullet: "Used ${primarySkill || "listed skill"} to improve [real ${metricExamples}]".`;
+}
+
+function buildSkillCleanupSuggestionBody(report, roleProfile) {
+  const missingText = getMissingSkillText(report, roleProfile, 3);
+  const projectReference = getProjectReference(report);
+  const listedSkills = getListedSkillText(report, 4);
+
+  if (missingText) {
+    return `Do not paste ${missingText} into Skills unless ${projectReference} or Experience proves it. Add proof first, then add the skill.`;
+  }
+
+  return `Keep Skills limited to what the resume proves: ${listedSkills || "your real tools"}. Remove any skill not shown in Projects or Experience.`;
+}
+
+function buildCertificationSuggestionBody(report, roleProfile) {
+  const certifications = fieldSpecificSkills(report.certifications);
+  const missingText = getMissingSkillText(report, roleProfile, 2);
+  const primarySkill = getPrimaryFieldSkill(report, roleProfile);
+
+  if (certifications.length > 0) {
+    return `Certifications show ${certifications.slice(0, 2).join(", ")}. Add issuer/year and connect it to ${missingText || primarySkill || roleProfile.label}.`;
+  }
+
+  return `Certifications are empty. Do not add fake certificates; add this section only after completing one tied to ${missingText || primarySkill || roleProfile.label}.`;
 }
 
 function buildActionItems(report) {
@@ -744,8 +774,16 @@ function buildActionItems(report) {
       body: buildProjectSuggestionBody(report, roleProfile),
     },
     {
+      title: "Remove unproven skills",
+      body: buildSkillCleanupSuggestionBody(report, roleProfile),
+    },
+    {
       title: "Tie education to role",
       body: buildEducationSuggestionBody(report, roleProfile),
+    },
+    {
+      title: "Keep certifications honest",
+      body: buildCertificationSuggestionBody(report, roleProfile),
     },
     {
       title: "Set role-specific headline",
@@ -775,10 +813,7 @@ function buildReportModel({ score, suggestions, formData, profileType, scoreBrea
   const targetRole = getRoleLabel(form, diagnostics || {});
   const roleProfile = resolveRoleProfile(targetRole);
   const missingSkills = pickMissingSkills(form, diagnostics || {}, roleProfile);
-  const matchedSkills = fieldSpecificSkills([
-    ...safeArray(diagnostics?.matchedSkills),
-    ...getProfileMatchedSkills(resumeSkills, roleProfile),
-  ]);
+  const matchedSkills = fieldSpecificSkills(diagnostics?.matchedSkills);
   const educationLabel = getEducationLabel(form);
   const projectSignals = analyzeProjectText(form.completedProjects, resumeSkills);
 
@@ -1440,10 +1475,7 @@ function drawReferencePieSlice(doc, centerX, centerY, radius, startDeg, endDeg, 
 
 function drawReferenceTrendChart(doc, report, x, y, width, height) {
   drawRoundedPanel(doc, x, y, width, height, COLORS.white, [226, 232, 240], 0);
-  const matchedCount = Math.max(
-    report.matchedSkills.length || report.resumeSkills.length,
-    report.resumeSkills.length > 0 ? 1 : 0
-  );
+  const matchedCount = Math.max(report.matchedSkills.length, 0);
   const missingCount = Math.max(report.missingSkills.length, 0);
   const supportingCount = report.certifications.length + (report.projectText ? 1 : 0);
   const rows = [
@@ -1555,7 +1587,7 @@ function drawReferenceSuggestions(doc, report, x, y, width) {
 }
 
 function getReferenceSuggestionItems(report) {
-  return report.actionItems.slice(0, 5).map((item, index) => ({
+  return report.actionItems.slice(0, 7).map((item, index) => ({
     ...item,
     number: String(index + 1).padStart(2, "0"),
   }));
@@ -1570,6 +1602,24 @@ function drawReferenceFooter(doc, report, pageNumber) {
   doc.text(`Generated ${report.fullReportDate}`, x, 293);
   doc.text("Confidential | UrBridge.ai", PAGE.width / 2, 293, { align: "center" });
   doc.text(`Page ${pageNumber}`, x + width, 293, { align: "right" });
+}
+
+function drawReferenceBrandHeader(doc, logoDataUrl, x, y, subtitle = "") {
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", x, y, 68, 8.5, undefined, "FAST");
+  } else {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(17.5);
+    setTextColor(doc, COLORS.ink);
+    doc.text("UrBridgeAI", x, y + 7);
+  }
+
+  if (subtitle) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    setTextColor(doc, COLORS.slate);
+    doc.text(subtitle, x, y + 15);
+  }
 }
 
 function fitTextToWidth(doc, text, maxWidth) {
@@ -1604,21 +1654,14 @@ function drawReferenceMetaRow(doc, report, x, y, width) {
   doc.text(report.fullReportDate, x + width, y, { align: "right" });
 }
 
-function drawReferenceReportPage(doc, report) {
+function drawReferenceReportPage(doc, report, logoDataUrl) {
   const x = 18;
   const width = 174;
 
   setFillColor(doc, COLORS.navy);
   doc.rect(0, 0, PAGE.width, 2.2, "F");
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(17.5);
-  setTextColor(doc, COLORS.ink);
-  doc.text("UrBridge.ai", x, 16);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  setTextColor(doc, COLORS.slate);
-  doc.text("AI-powered resume & ATS analysis report", x, 22);
+  drawReferenceBrandHeader(doc, logoDataUrl, x, 9, "AI-powered resume & ATS analysis report");
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.4);
@@ -1645,7 +1688,7 @@ function drawReferenceReportPage(doc, report) {
   drawReferenceFooter(doc, report, 1);
 }
 
-function drawReferenceTrendPage(doc, report) {
+function drawReferenceTrendPage(doc, report, logoDataUrl) {
   doc.addPage();
   const x = 18;
   const width = 174;
@@ -1653,27 +1696,29 @@ function drawReferenceTrendPage(doc, report) {
   setFillColor(doc, COLORS.navy);
   doc.rect(0, 0, PAGE.width, 2.2, "F");
 
+  drawReferenceBrandHeader(doc, logoDataUrl, x, 9);
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(17.5);
   setTextColor(doc, COLORS.ink);
-  doc.text("Skill Trend Analysis", x, 18);
+  doc.text("Skill Trend Analysis", x, 30);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   setTextColor(doc, COLORS.slate);
-  doc.text("A clearer view of matched, missing, and supporting resume signals.", x, 25);
+  doc.text("A clearer view of matched, missing, and supporting resume signals.", x, 37);
 
   setDrawColor(doc, [222, 228, 236]);
   doc.setLineWidth(0.35);
-  doc.line(x, 37, x + width, 37);
+  doc.line(x, 47, x + width, 47);
 
-  drawReferenceSectionHeader(doc, "Skill Trend Analysis 2023-2026", x, 50, width);
-  drawReferenceTrendChart(doc, report, x, 62, width, 92);
+  drawReferenceSectionHeader(doc, "Skill Trend Analysis 2023-2026", x, 58, width);
+  drawReferenceTrendChart(doc, report, x, 70, width, 92);
 
   drawReferenceFooter(doc, report, 2);
 }
 
-function drawReferenceSuggestionsPage(doc, report) {
+function drawReferenceSuggestionsPage(doc, report, logoDataUrl) {
   doc.addPage();
   const x = 18;
   const width = 174;
@@ -1681,34 +1726,67 @@ function drawReferenceSuggestionsPage(doc, report) {
   setFillColor(doc, COLORS.navy);
   doc.rect(0, 0, PAGE.width, 2.2, "F");
 
+  drawReferenceBrandHeader(doc, logoDataUrl, x, 9);
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(17.5);
   setTextColor(doc, COLORS.ink);
-  doc.text("Improvement Suggestions", x, 18);
+  doc.text("Improvement Suggestions", x, 30);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   setTextColor(doc, COLORS.slate);
-  doc.text("Prioritized actions to improve ATS parsing, recruiter scan speed, and role alignment.", x, 25);
+  doc.text("Prioritized actions to improve ATS parsing, recruiter scan speed, and role alignment.", x, 37);
 
   setDrawColor(doc, [222, 228, 236]);
   doc.setLineWidth(0.35);
-  doc.line(x, 34, x + width, 34);
+  doc.line(x, 47, x + width, 47);
 
-  drawReferenceSectionHeader(doc, "Improvement Suggestions", x, 44, width);
-  drawReferenceSuggestions(doc, report, x, 56, width);
+  drawReferenceSectionHeader(doc, "Improvement Suggestions", x, 57, width);
+  drawReferenceSuggestions(doc, report, x, 69, width);
 
   drawReferenceFooter(doc, report, 3);
 }
 
-export const downloadReport = ({ score, suggestions, formData, profileType, scoreBreakdown, strongPoints, diagnostics }) => {
+let cachedBrandLogoDataUrl;
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function loadBrandLogoDataUrl() {
+  if (cachedBrandLogoDataUrl !== undefined) return cachedBrandLogoDataUrl;
+
+  try {
+    if (String(brandLogoUrl).startsWith("data:")) {
+      cachedBrandLogoDataUrl = brandLogoUrl;
+      return cachedBrandLogoDataUrl;
+    }
+
+    const response = await fetch(brandLogoUrl);
+    if (!response.ok) throw new Error("Logo asset could not be loaded");
+    cachedBrandLogoDataUrl = await blobToDataUrl(await response.blob());
+  } catch {
+    cachedBrandLogoDataUrl = null;
+  }
+
+  return cachedBrandLogoDataUrl;
+}
+
+export const downloadReport = async ({ score, suggestions, formData, profileType, scoreBreakdown, strongPoints, diagnostics }) => {
   const report = buildReportModel({ score, suggestions, formData, profileType, scoreBreakdown, strongPoints, diagnostics });
+  const logoDataUrl = await loadBrandLogoDataUrl();
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-  drawReferenceReportPage(doc, report);
-  drawReferenceTrendPage(doc, report);
-  drawReferenceSuggestionsPage(doc, report);
+  drawReferenceReportPage(doc, report, logoDataUrl);
+  drawReferenceTrendPage(doc, report, logoDataUrl);
+  drawReferenceSuggestionsPage(doc, report, logoDataUrl);
 
   doc.save("UrBridge_Resume_Report.pdf");
 };
