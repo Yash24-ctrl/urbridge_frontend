@@ -73,6 +73,299 @@ const SKILL_TRENDS = {
   matplotlib: { trend: "Stable", color: [81, 96, 125] },
 };
 
+const INDIA_ROLE_LIBRARY = {
+  "software engineer": {
+    label: "Software Engineer",
+    industry: "Technology",
+    coreSkills: ["Data Structures", "Algorithms", "Design Patterns", "Git", "SQL", "OOP", "Testing", "API Development", "System Design", "Debugging"],
+    certifications: ["DSA portfolio", "AWS Cloud Practitioner", "GitHub project portfolio"],
+    educationFocus: "CS fundamentals, OOP, DBMS, operating systems, and data structures",
+    projectFocus: "features, APIs, tests, deployment, performance, and user impact",
+  },
+  "frontend developer": {
+    label: "Frontend Developer",
+    industry: "Technology",
+    coreSkills: ["HTML", "CSS", "JavaScript", "React", "TypeScript", "Responsive Design", "Accessibility", "State Management", "Testing", "Performance Optimization"],
+    certifications: ["Meta Front-End Developer", "Google UX Design", "JavaScript certification"],
+    educationFocus: "web development, UI engineering, accessibility, and browser fundamentals",
+    projectFocus: "responsive UI, reusable components, API integration, accessibility, and Lighthouse scores",
+  },
+  "backend developer": {
+    label: "Backend Developer",
+    industry: "Technology",
+    coreSkills: ["Node.js", "Express", "REST APIs", "SQL", "MongoDB", "Authentication", "Docker", "Redis", "System Design", "Testing"],
+    certifications: ["AWS Cloud Practitioner", "MongoDB Developer", "Postman API certification"],
+    educationFocus: "DBMS, networking, operating systems, APIs, and distributed systems",
+    projectFocus: "secure APIs, database design, authentication, caching, tests, and deployment",
+  },
+  "full stack developer": {
+    label: "Full Stack Developer",
+    industry: "Technology",
+    coreSkills: ["React", "Node.js", "Express", "SQL", "MongoDB", "REST APIs", "Authentication", "Git", "Docker", "Deployment"],
+    certifications: ["MERN stack certification", "AWS Cloud Practitioner", "GitHub project portfolio"],
+    educationFocus: "full-stack web development, DBMS, APIs, and deployment basics",
+    projectFocus: "end-to-end apps with frontend, backend, database, auth, deployment, and measurable users",
+  },
+  "data analyst": {
+    label: "Data Analyst",
+    industry: "Analytics",
+    coreSkills: ["SQL", "Excel", "Power BI", "Tableau", "Python", "Statistics", "Dashboards", "Data Cleaning", "Reporting", "Business Insights"],
+    certifications: ["Google Data Analytics", "Microsoft Power BI PL-300", "Excel Advanced"],
+    educationFocus: "statistics, business analytics, Excel, SQL, and visualization coursework",
+    projectFocus: "business dashboards, KPI tracking, data cleaning, insights, and decision impact",
+  },
+  "data scientist": {
+    label: "Data Scientist",
+    industry: "AI and Analytics",
+    coreSkills: ["Python", "SQL", "Statistics", "Machine Learning", "Pandas", "NumPy", "Scikit-learn", "Data Visualization", "Model Evaluation", "Feature Engineering"],
+    certifications: ["IBM Data Science", "Google Advanced Data Analytics", "Kaggle portfolio"],
+    educationFocus: "statistics, machine learning, linear algebra, Python, and data mining",
+    projectFocus: "model accuracy, feature engineering, dataset size, validation method, and business result",
+  },
+  "machine learning engineer": {
+    label: "Machine Learning Engineer",
+    industry: "AI and Analytics",
+    coreSkills: ["Python", "Machine Learning", "Deep Learning", "TensorFlow", "PyTorch", "MLOps", "Docker", "Model Deployment", "APIs", "AWS"],
+    certifications: ["TensorFlow Developer", "AWS Machine Learning", "MLOps specialization"],
+    educationFocus: "ML algorithms, model deployment, cloud basics, statistics, and software engineering",
+    projectFocus: "training pipeline, model serving, monitoring, latency, accuracy, and retraining workflow",
+  },
+  "devops engineer": {
+    label: "DevOps Engineer",
+    industry: "Cloud and Infrastructure",
+    coreSkills: ["Linux", "Docker", "Kubernetes", "CI/CD", "AWS", "Terraform", "Monitoring", "Shell Scripting", "GitHub Actions", "Networking"],
+    certifications: ["AWS Solutions Architect", "CKA or CKAD", "HashiCorp Terraform Associate"],
+    educationFocus: "Linux, networking, cloud computing, automation, and infrastructure security",
+    projectFocus: "CI/CD pipelines, uptime, deployment frequency, rollback, monitoring, and cost savings",
+  },
+  "cloud engineer": {
+    label: "Cloud Engineer",
+    industry: "Cloud and Infrastructure",
+    coreSkills: ["AWS", "Azure", "GCP", "Linux", "Networking", "Docker", "Kubernetes", "Terraform", "Security", "Monitoring"],
+    certifications: ["AWS Solutions Architect", "Microsoft Azure AZ-104", "Google Associate Cloud Engineer"],
+    educationFocus: "cloud architecture, networking, Linux, security, and automation",
+    projectFocus: "cloud migration, architecture diagrams, cost optimization, uptime, and security controls",
+  },
+  "cybersecurity analyst": {
+    label: "Cybersecurity Analyst",
+    industry: "Cybersecurity",
+    coreSkills: ["Network Security", "SIEM", "Vulnerability Assessment", "Incident Response", "Linux", "OWASP", "Risk Assessment", "Firewalls", "Python", "Compliance"],
+    certifications: ["Security+", "CEH", "Google Cybersecurity"],
+    educationFocus: "networking, operating systems, security fundamentals, and compliance",
+    projectFocus: "vulnerability reports, incident timelines, controls applied, risk reduction, and tool evidence",
+  },
+  "qa engineer": {
+    label: "QA Engineer",
+    industry: "Technology",
+    coreSkills: ["Manual Testing", "Automation Testing", "Selenium", "API Testing", "Postman", "Test Cases", "Bug Reporting", "Regression Testing", "SQL", "Agile"],
+    certifications: ["ISTQB Foundation", "Selenium automation", "Postman API certification"],
+    educationFocus: "software testing, SDLC, SQL basics, automation, and quality processes",
+    projectFocus: "test coverage, defect leakage, automation scripts, API testing, and release quality",
+  },
+  "business analyst": {
+    label: "Business Analyst",
+    industry: "Business and Consulting",
+    coreSkills: ["Requirement Gathering", "SQL", "Excel", "Power BI", "Process Mapping", "Stakeholder Management", "BRD", "User Stories", "UAT", "Agile"],
+    certifications: ["IIBA ECBA", "Power BI PL-300", "Agile or Scrum certification"],
+    educationFocus: "business analytics, process management, statistics, and domain coursework",
+    projectFocus: "requirements, process improvements, dashboards, UAT results, and business impact",
+  },
+  "product manager": {
+    label: "Product Manager",
+    industry: "Product and Business",
+    coreSkills: ["Product Strategy", "Roadmapping", "User Research", "Analytics", "Prioritization", "A/B Testing", "Agile", "Stakeholder Management", "SQL", "Go-to-Market"],
+    certifications: ["Product management certification", "Scrum Product Owner", "Google Analytics"],
+    educationFocus: "product strategy, analytics, user research, business, and technology fundamentals",
+    projectFocus: "problem discovery, roadmap choices, adoption, retention, revenue, and customer outcomes",
+  },
+  "digital marketing specialist": {
+    label: "Digital Marketing Specialist",
+    industry: "Marketing",
+    coreSkills: ["SEO", "Google Ads", "Meta Ads", "Google Analytics", "Content Marketing", "Email Marketing", "Social Media", "Keyword Research", "Conversion Rate Optimization", "Reporting"],
+    certifications: ["Google Ads", "Google Analytics", "HubSpot Content Marketing"],
+    educationFocus: "marketing analytics, consumer behavior, campaign management, and channel strategy",
+    projectFocus: "campaign spend, leads, CAC, CTR, conversion rate, revenue, and channel performance",
+  },
+  "sales manager": {
+    label: "Sales Manager",
+    industry: "Sales",
+    coreSkills: ["Lead Generation", "CRM", "Negotiation", "Pipeline Management", "B2B Sales", "Client Relationship", "Sales Forecasting", "Market Research", "Presentation", "Revenue Growth"],
+    certifications: ["HubSpot Sales", "Salesforce CRM", "Negotiation training"],
+    educationFocus: "sales, marketing, CRM, negotiation, and market research",
+    projectFocus: "pipeline value, conversion rate, revenue, repeat business, and territory growth",
+  },
+  "hr manager": {
+    label: "HR Manager",
+    industry: "Human Resources",
+    coreSkills: ["Recruitment", "HR Operations", "Employee Engagement", "Payroll", "Performance Management", "HRMS", "Onboarding", "Compliance", "Training", "People Analytics"],
+    certifications: ["SHRM basics", "HR Analytics", "Payroll and compliance certification"],
+    educationFocus: "HRM, labor law, organizational behavior, payroll, and people analytics",
+    projectFocus: "time-to-hire, retention, engagement score, onboarding speed, and compliance outcomes",
+  },
+  "accountant": {
+    label: "Accountant",
+    industry: "Finance and Accounting",
+    coreSkills: ["Tally", "GST", "TDS", "Excel", "Accounts Payable", "Accounts Receivable", "Bank Reconciliation", "Financial Reporting", "Tax Filing", "Audit Support"],
+    certifications: ["Tally Prime", "GST certification", "Advanced Excel"],
+    educationFocus: "accounting, taxation, audit, financial reporting, and commerce fundamentals",
+    projectFocus: "month-end closing, reconciliation accuracy, tax filing, audit support, and process improvement",
+  },
+  "financial analyst": {
+    label: "Financial Analyst",
+    industry: "Finance",
+    coreSkills: ["Excel", "Financial Modeling", "Valuation", "Forecasting", "Power BI", "SQL", "Budgeting", "Variance Analysis", "Accounting", "Reporting"],
+    certifications: ["CFA Level 1", "Financial Modeling", "Advanced Excel"],
+    educationFocus: "finance, accounting, statistics, economics, and valuation",
+    projectFocus: "forecast accuracy, variance analysis, dashboards, valuation model, and decision impact",
+  },
+  "project manager": {
+    label: "Project Manager",
+    industry: "Operations and Delivery",
+    coreSkills: ["Project Planning", "Agile", "Scrum", "Risk Management", "Budgeting", "Stakeholder Management", "Jira", "MS Project", "Reporting", "Team Leadership"],
+    certifications: ["PMP", "CAPM", "Scrum Master"],
+    educationFocus: "project management, operations, risk, budgeting, and delivery governance",
+    projectFocus: "delivery timeline, budget control, risk mitigation, team size, and stakeholder outcomes",
+  },
+  "operations manager": {
+    label: "Operations Manager",
+    industry: "Operations",
+    coreSkills: ["Process Improvement", "Vendor Management", "Inventory Management", "Excel", "KPI Reporting", "SOPs", "Quality Control", "Team Management", "Cost Optimization", "Logistics"],
+    certifications: ["Lean Six Sigma", "Supply Chain certification", "Advanced Excel"],
+    educationFocus: "operations, supply chain, quality, analytics, and process management",
+    projectFocus: "cost savings, turnaround time, SLA, inventory accuracy, and quality improvements",
+  },
+  "civil engineer": {
+    label: "Civil Engineer",
+    industry: "Construction and Infrastructure",
+    coreSkills: ["AutoCAD", "Site Supervision", "Estimation", "BOQ", "Project Planning", "STAAD Pro", "Quantity Surveying", "Quality Control", "Safety", "MS Project"],
+    certifications: ["AutoCAD Civil", "STAAD Pro", "Construction safety"],
+    educationFocus: "structural engineering, surveying, estimation, safety, and construction management",
+    projectFocus: "site area, budget, materials, safety compliance, drawings, and completion timeline",
+  },
+  "mechanical engineer": {
+    label: "Mechanical Engineer",
+    industry: "Manufacturing and Engineering",
+    coreSkills: ["AutoCAD", "SolidWorks", "Manufacturing", "Quality Control", "Thermodynamics", "Maintenance", "Lean Manufacturing", "Production Planning", "CNC", "Root Cause Analysis"],
+    certifications: ["SolidWorks", "AutoCAD Mechanical", "Lean Six Sigma"],
+    educationFocus: "design, manufacturing, thermodynamics, maintenance, and quality systems",
+    projectFocus: "design change, production efficiency, downtime reduction, quality metrics, and cost savings",
+  },
+  "electrical engineer": {
+    label: "Electrical Engineer",
+    industry: "Engineering and Energy",
+    coreSkills: ["Circuit Design", "PLC", "SCADA", "Power Systems", "AutoCAD Electrical", "Maintenance", "Troubleshooting", "Control Systems", "Safety", "MATLAB"],
+    certifications: ["PLC and SCADA", "AutoCAD Electrical", "Electrical safety"],
+    educationFocus: "power systems, control systems, machines, electronics, and safety standards",
+    projectFocus: "load calculations, panels, automation, downtime reduction, safety, and commissioning results",
+  },
+  "nurse": {
+    label: "Nurse",
+    industry: "Healthcare",
+    coreSkills: ["Patient Care", "Medication Administration", "Vital Signs", "Infection Control", "Emergency Care", "Clinical Documentation", "Patient Education", "Ward Management", "Care Plan Execution", "BLS"],
+    certifications: ["BLS", "ACLS", "Infection control"],
+    educationFocus: "nursing qualification, clinical rotations, patient care, and license details",
+    projectFocus: "patient load, ward type, procedures supported, safety practices, and care outcomes",
+  },
+  "doctor": {
+    label: "Doctor",
+    industry: "Healthcare",
+    coreSkills: ["Diagnosis", "Patient Care", "Clinical Documentation", "Emergency Medicine", "Treatment Planning", "Medical Ethics", "Clinical Decision Making", "Case Management", "Procedures", "Research"],
+    certifications: ["Medical registration", "BLS or ACLS", "specialty training"],
+    educationFocus: "medical degree, registration, internship, residency, and specialization",
+    projectFocus: "case volume, procedures, patient outcomes, research, audits, and specialty exposure",
+  },
+  "pharmacist": {
+    label: "Pharmacist",
+    industry: "Healthcare",
+    coreSkills: ["Pharmacology", "Prescription Review", "Drug Dispensing", "Inventory Management", "Patient Counseling", "Regulatory Compliance", "Billing", "Clinical Knowledge", "Documentation", "Quality Control"],
+    certifications: ["Pharmacy registration", "Pharmacovigilance", "Clinical pharmacy"],
+    educationFocus: "pharmacy degree, registration, pharmacology, dispensing, and compliance",
+    projectFocus: "dispensing accuracy, inventory control, patient counseling, compliance, and audit results",
+  },
+  "teacher": {
+    label: "Teacher",
+    industry: "Education",
+    coreSkills: ["Lesson Planning", "Classroom Management", "Subject Knowledge", "Assessment", "Learning Outcomes", "EdTech", "Curriculum Development", "Student Engagement", "Parent Engagement", "Special Education"],
+    certifications: ["B.Ed", "CTET or state TET", "EdTech certification"],
+    educationFocus: "teaching qualification, subject specialization, pedagogy, and certifications",
+    projectFocus: "student outcomes, lesson plans, assessment improvement, classroom size, and EdTech use",
+  },
+  "graphic designer": {
+    label: "Graphic Designer",
+    industry: "Creative",
+    coreSkills: ["Adobe Photoshop", "Illustrator", "Figma", "Branding", "Typography", "Layout Design", "Social Media Design", "UI Design", "Color Theory", "Portfolio"],
+    certifications: ["Adobe certification", "Figma course", "UI design portfolio"],
+    educationFocus: "design fundamentals, typography, branding, UI basics, and visual systems",
+    projectFocus: "before-after designs, brand assets, engagement metrics, portfolio links, and client outcomes",
+  },
+  "content writer": {
+    label: "Content Writer",
+    industry: "Media and Marketing",
+    coreSkills: ["SEO Writing", "Copywriting", "Research", "Editing", "Content Strategy", "WordPress", "Keyword Research", "Grammar", "Social Media", "Analytics"],
+    certifications: ["HubSpot Content Marketing", "SEO certification", "Google Analytics"],
+    educationFocus: "journalism, marketing, research, SEO writing, and editorial planning",
+    projectFocus: "traffic growth, ranking keywords, engagement, published links, and conversion impact",
+  },
+  "customer service executive": {
+    label: "Customer Service Executive",
+    industry: "Customer Support",
+    coreSkills: ["Customer Support", "CRM", "Call Quality", "Root Cause Resolution", "Ticketing Tools", "Escalation Handling", "SLA Management", "Email Support", "Call Handling", "Product Knowledge"],
+    certifications: ["CRM workflow training", "Customer service certification", "Zendesk support workflow"],
+    educationFocus: "CRM workflows, service quality, ticketing systems, and support operations",
+    projectFocus: "CSAT, first response time, resolution time, ticket volume, and escalation reduction",
+  },
+  generic: {
+    label: "Professional",
+    industry: "General",
+    coreSkills: [],
+    certifications: [],
+    educationFocus: "coursework and credentials directly requested in the target job role",
+    projectFocus: "field tools, resume evidence, and target-job proof",
+  },
+};
+
+const ROLE_ALIASES = {
+  sde: "software engineer",
+  "software developer": "software engineer",
+  "java developer": "backend developer",
+  "python developer": "backend developer",
+  "mern developer": "full stack developer",
+  "react developer": "frontend developer",
+  "web developer": "frontend developer",
+  "ui developer": "frontend developer",
+  "ml engineer": "machine learning engineer",
+  "ai engineer": "machine learning engineer",
+  "cloud engineer": "cloud engineer",
+  "security analyst": "cybersecurity analyst",
+  "cyber security": "cybersecurity analyst",
+  "quality analyst": "qa engineer",
+  "test engineer": "qa engineer",
+  "automation tester": "qa engineer",
+  "marketing manager": "digital marketing specialist",
+  "seo executive": "digital marketing specialist",
+  "business development": "sales manager",
+  bdm: "sales manager",
+  "human resources": "hr manager",
+  "talent acquisition": "hr manager",
+  recruiter: "hr manager",
+  "finance analyst": "financial analyst",
+  "accounts executive": "accountant",
+  "chartered accountant": "accountant",
+  ca: "accountant",
+  "site engineer": "civil engineer",
+  "medical technician": "nurse",
+  educator: "teacher",
+  "video editor": "graphic designer",
+  "support executive": "customer service executive",
+  "customer support": "customer service executive",
+};
+
+const DISALLOWED_GENERIC_SKILLS = new Set([
+  "communication",
+  "problem solving",
+  "team collaboration",
+]);
+
 function getSkillTrend(skill) {
   const key = String(skill || "").toLowerCase().trim();
   return SKILL_TRENDS[key] || { trend: "Relevant", color: [81, 96, 125] };
@@ -82,6 +375,43 @@ function safeArray(values) {
   return Array.isArray(values)
     ? values.map((value) => String(value || "").trim()).filter(Boolean)
     : [];
+}
+
+function escapeRegExp(value = "") {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeComparable(value = "") {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/\bnode\s*\.?\s*js\b/g, "node.js")
+    .replace(/\breact\s*\.?\s*js\b/g, "react")
+    .replace(/[^a-z0-9+#.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function compactComparable(value = "") {
+  return normalizeComparable(value).replace(/[^a-z0-9+#]/g, "");
+}
+
+function uniqueByComparable(values = []) {
+  const seen = new Set();
+  return safeArray(values).filter((value) => {
+    const key = compactComparable(value);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function isFieldSpecificSkill(value = "") {
+  return !DISALLOWED_GENERIC_SKILLS.has(normalizeComparable(value));
+}
+
+function fieldSpecificSkills(values = []) {
+  return uniqueByComparable(values).filter(isFieldSpecificSkill);
 }
 
 function clamp(value, min, max) {
@@ -111,6 +441,67 @@ function formatFullReportDate() {
 
 function pluralize(count, singular, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function normalizedRoleIncludes(normalizedRole, term) {
+  const normalizedTerm = normalizeComparable(term);
+  if (!normalizedRole || !normalizedTerm) return false;
+
+  if (normalizedTerm.length <= 3) {
+    return new RegExp(`(^|\\s)${escapeRegExp(normalizedTerm)}(\\s|$)`).test(normalizedRole);
+  }
+
+  return normalizedRole.includes(normalizedTerm);
+}
+
+function skillMatches(candidateSkill, requiredSkill) {
+  const candidate = normalizeComparable(candidateSkill);
+  const required = normalizeComparable(requiredSkill);
+  if (!candidate || !required) return false;
+
+  const compactCandidate = compactComparable(candidate);
+  const compactRequired = compactComparable(required);
+  if (compactCandidate === compactRequired) return true;
+
+  return (
+    (required.length >= 4 && candidate.includes(required)) ||
+    (candidate.length >= 4 && required.includes(candidate))
+  );
+}
+
+function resolveRoleProfile(targetRole = "") {
+  const normalizedRole = normalizeComparable(targetRole);
+  const sortedAliases = Object.entries(ROLE_ALIASES).sort((a, b) => b[0].length - a[0].length);
+  const aliasMatch = sortedAliases.find(([alias]) => normalizedRoleIncludes(normalizedRole, alias));
+  const directMatch = Object.keys(INDIA_ROLE_LIBRARY)
+    .filter((role) => role !== "generic")
+    .sort((a, b) => b.length - a.length)
+    .find((role) => normalizedRoleIncludes(normalizedRole, role));
+
+  const key = aliasMatch?.[1] || directMatch || "generic";
+  const profile = INDIA_ROLE_LIBRARY[key] || INDIA_ROLE_LIBRARY.generic;
+  return {
+    key,
+    ...profile,
+    label: key === "generic" && targetRole ? titleCase(targetRole) : profile.label,
+  };
+}
+
+function getProfileMissingSkills(resumeSkills = [], roleProfile = INDIA_ROLE_LIBRARY.generic) {
+  return fieldSpecificSkills(roleProfile.coreSkills).filter(
+    (requiredSkill) => !safeArray(resumeSkills).some((skill) => skillMatches(skill, requiredSkill))
+  );
+}
+
+function getProfileMatchedSkills(resumeSkills = [], roleProfile = INDIA_ROLE_LIBRARY.generic) {
+  return fieldSpecificSkills(roleProfile.coreSkills).filter(
+    (requiredSkill) => safeArray(resumeSkills).some((skill) => skillMatches(skill, requiredSkill))
+  );
+}
+
+function formatCompactList(values = [], limit = 4, fallback = "role keywords") {
+  const list = fieldSpecificSkills(values).slice(0, limit);
+  return list.length > 0 ? list.join(", ") : fallback;
 }
 
 function getEducationLabel(formData = {}) {
@@ -194,83 +585,182 @@ function buildFallbackBreakdown(formData = {}, diagnostics = {}) {
   return { skills: skillsScore, experience: experienceScore, projects: projectScore, education: educationScore, certifications: certificationsScore, ats: atsScore };
 }
 
-function pickMissingSkills(formData = {}, diagnostics = {}) {
-  const knownMissing = safeArray(diagnostics.missingSkills);
-  if (knownMissing.length > 0) return knownMissing;
-
-  const desiredRole = getRoleLabel(formData, diagnostics).toLowerCase();
-  const roleHints = {
-    "software engineer": ["Git", "Testing", "Problem Solving", "SQL", "Documentation"],
-    "software developer": ["Git", "Communication", "Documentation", "REST APIs", "Agile"],
-    "backend developer": ["API Development", "Git", "Docker", "SQL", "Testing"],
-    "frontend developer": ["TypeScript", "Accessibility", "Responsive Design", "Testing", "Git"],
-    "data analyst": ["Excel", "Power BI", "Reporting", "Dashboards", "SQL"],
-    "data scientist": ["SQL", "Statistics", "Scikit-learn", "Data Visualization", "Git"],
-  };
-
-  const resumeSkills = safeArray(formData.skills).map((skill) => skill.toLowerCase());
-  const suggestedRole = Object.keys(roleHints).find((role) => desiredRole.includes(role));
-  const roleSkills = roleHints[suggestedRole || "software developer"] || [];
-  return roleSkills.filter((skill) => !resumeSkills.includes(skill.toLowerCase()));
+function pickMissingSkills(formData = {}, diagnostics = {}, roleProfile = null) {
+  const profile = roleProfile || resolveRoleProfile(getRoleLabel(formData, diagnostics));
+  const knownMissing = fieldSpecificSkills(diagnostics.missingSkills);
+  const roleMissing = getProfileMissingSkills(safeArray(formData.skills), profile);
+  return fieldSpecificSkills([...knownMissing, ...roleMissing]).slice(0, 8);
 }
 
-function createActionTitle(fallbackTitle = "", suggestion = "") {
-  const text = String(suggestion || "").trim();
-  if (!text) return fallbackTitle;
+function truncateText(value = "", maxLength = 76) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 3).trim()}...`;
+}
 
-  const titlePatterns = [
-    { pattern: /skill/i, title: "Add role-relevant skills" },
-    { pattern: /project|bullet/i, title: "Expand project depth" },
-    { pattern: /certif/i, title: "Strengthen certifications" },
-    { pattern: /keyword|ats|job description|jd/i, title: "Tailor wording to the JD" },
-    { pattern: /experience|title|role/i, title: "Clarify practical experience" },
-    { pattern: /education/i, title: "Tighten education section" },
-  ];
+function getProjectReference(report) {
+  const projectText = String(report.projectText || report.formData?.completedProjects || "").replace(/\s+/g, " ").trim();
+  if (!projectText) return "Projects section is empty";
 
-  const matched = titlePatterns.find(({ pattern }) => pattern.test(text));
-  if (matched) return matched.title;
+  const firstProject = projectText
+    .split(/\s*\|\s*|\s*;\s*|\.\s+/)
+    .map((item) => item.trim())
+    .find(Boolean) || projectText;
 
-  const cleaned = text.replace(/^[^A-Za-z0-9]+/, "").split(/[.:]/)[0].trim();
-  const words = cleaned.split(/\s+/).slice(0, 6).join(" ");
-  return words ? titleCase(words) : fallbackTitle;
+  return `Projects section "${truncateText(firstProject)}"`;
+}
+
+function getRoleCoreSkills(roleProfile = INDIA_ROLE_LIBRARY.generic) {
+  return fieldSpecificSkills(roleProfile.coreSkills);
+}
+
+function getMatchedSkillText(report, roleProfile, limit = 3) {
+  const matchedSkills = fieldSpecificSkills(report.matchedSkills);
+  if (matchedSkills.length > 0) return matchedSkills.slice(0, limit).join(", ");
+
+  const resumeSkills = fieldSpecificSkills(report.resumeSkills);
+  if (resumeSkills.length > 0) return resumeSkills.slice(0, limit).join(", ");
+
+  const roleSkills = getRoleCoreSkills(roleProfile);
+  return roleSkills.length > 0 ? roleSkills.slice(0, limit).join(", ") : "no field-specific skills listed yet";
+}
+
+function getMissingSkillText(report, roleProfile, limit = 3) {
+  const missingSkills = fieldSpecificSkills(report.missingSkills);
+  if (missingSkills.length > 0) return missingSkills.slice(0, limit).join(", ");
+
+  const roleSkills = getRoleCoreSkills(roleProfile).filter(
+    (skill) => !fieldSpecificSkills(report.resumeSkills).some((resumeSkill) => skillMatches(resumeSkill, skill))
+  );
+  return roleSkills.length > 0 ? roleSkills.slice(0, limit).join(", ") : "the exact tools requested in the target JD";
+}
+
+function getPrimaryFieldSkill(report, roleProfile) {
+  return (
+    fieldSpecificSkills(report.missingSkills)[0] ||
+    fieldSpecificSkills(report.matchedSkills)[0] ||
+    getRoleCoreSkills(roleProfile)[0] ||
+    fieldSpecificSkills(report.resumeSkills)[0] ||
+    "a verified field tool"
+  );
+}
+
+function getRoleMetricExamples(roleProfile = INDIA_ROLE_LIBRARY.generic) {
+  const key = roleProfile.key || "";
+  const industry = normalizeComparable(roleProfile.industry || "");
+
+  if (/data|machine learning/.test(key) || industry.includes("analytics")) return "accuracy, F1 score, dataset size";
+  if (/frontend/.test(key)) return "Lighthouse score, load time, responsive pages";
+  if (/backend|full stack|software/.test(key)) return "API latency, test coverage, request volume";
+  if (/devops|cloud/.test(key)) return "deployment time, uptime, cloud cost";
+  if (/cybersecurity/.test(key)) return "vulnerability count, risk severity, incident response time";
+  if (/qa/.test(key)) return "test coverage, bug count, automation cases";
+  if (/marketing/.test(key)) return "CTR, conversion rate, leads, CAC";
+  if (/sales/.test(key)) return "pipeline value, conversion rate, revenue";
+  if (/hr/.test(key)) return "time-to-hire, retention, onboarding time";
+  if (/accountant|financial/.test(key)) return "closing time, variance, reconciliation accuracy";
+  if (/project manager|operations/.test(key)) return "delivery time, SLA, cost savings";
+  if (/civil|mechanical|electrical/.test(key)) return "budget, site size, downtime, safety results";
+  if (/nurse|doctor|pharmacist/.test(key)) return "patient load, procedure count, care outcome";
+  if (/teacher/.test(key)) return "class size, assessment scores, lesson outcomes";
+  if (/graphic|content/.test(key)) return "reach, engagement, portfolio link";
+  if (/customer service/.test(key)) return "CSAT, AHT, FCR, ticket volume";
+
+  return "field metric from the target job role";
+}
+
+function buildSkillSuggestionBody(report, roleProfile) {
+  const missingSkills = fieldSpecificSkills(report.missingSkills).slice(0, 5);
+  const matchedText = getMatchedSkillText(report, roleProfile);
+  const missingText = getMissingSkillText(report, roleProfile);
+  const primarySkill = getPrimaryFieldSkill(report, roleProfile);
+
+  if (missingSkills.length > 0) {
+    return `In Skills, you already show ${matchedText}; add proof for missing ${missingText}. Example: "${primarySkill} - used in ${getProjectReference(report)}" for ${roleProfile.label}.`;
+  }
+
+  return `In Skills, ${matchedText} fits ${roleProfile.label}. Add where each was used, e.g. "${primarySkill} - applied in ${getProjectReference(report)}".`;
+}
+
+function buildProjectSuggestionBody(report, roleProfile) {
+  const projectReference = getProjectReference(report);
+  const primarySkill = getPrimaryFieldSkill(report, roleProfile);
+  const missingText = getMissingSkillText(report, roleProfile, 2);
+  const metricExamples = getRoleMetricExamples(roleProfile);
+
+  if (report.projectSignals.wordCount < 25) {
+    return `${projectReference}. Add one ${roleProfile.label} project using ${missingText}; include ${metricExamples} so the project proves field readiness.`;
+  }
+
+  if (!report.projectSignals.hasMetrics) {
+    return `In ${projectReference}, add ${metricExamples} and mention ${primarySkill}; this shows ${roleProfile.label} impact instead of only task description.`;
+  }
+
+  if (!report.projectSignals.hasResultLanguage) {
+    return `In ${projectReference}, connect the result to ${primarySkill}; example: "used ${primarySkill} to deliver ${metricExamples}" for ${roleProfile.label}.`;
+  }
+
+  return `In ${projectReference}, keep the existing proof and add your exact contribution with ${primarySkill}; recruiters need ownership evidence for ${roleProfile.label}.`;
+}
+
+function buildEducationSuggestionBody(report, roleProfile) {
+  const certTargets = formatCompactList(roleProfile.certifications, 2, "one certificate named in the target JD");
+  const educationLabel = report.educationLabel || "Education";
+  const missingText = getMissingSkillText(report, roleProfile, 2);
+
+  if (/high school|diploma|other/i.test(educationLabel)) {
+    return `Education shows ${educationLabel}. Add coursework or ${certTargets} tied to ${missingText}; it gives ${roleProfile.label} proof beyond degree level.`;
+  }
+
+  return `Education shows ${educationLabel}. Add institute/year plus coursework in ${missingText}; add ${certTargets} if it is true for ${roleProfile.label}.`;
+}
+
+function buildRoleSuggestionBody(report, roleProfile) {
+  const matchedText = getMatchedSkillText(report, roleProfile);
+  const missingText = getMissingSkillText(report, roleProfile, 2);
+  return `Target role is "${report.targetRole}". Set Summary headline to "${roleProfile.label} | ${matchedText}" and add ${missingText} only with real proof.`;
+}
+
+function buildExperienceSuggestionBody(report, roleProfile) {
+  const primarySkill = getPrimaryFieldSkill(report, roleProfile);
+  const metricExamples = getRoleMetricExamples(roleProfile);
+
+  if (report.experience === 0 || /student|fresher|n\/?a/i.test(report.previousJobTitle)) {
+    return `Previous Job Title is "${report.previousJobTitle}". Add an internship, academic, or freelance title using ${primarySkill}; this connects your resume to ${roleProfile.label}.`;
+  }
+
+  return `Previous Job Title is "${report.previousJobTitle}". Add a latest-role bullet: "Used ${primarySkill} to improve ${metricExamples}" for ${roleProfile.label}.`;
 }
 
 function buildActionItems(report) {
+  const roleProfile = report.roleProfile || resolveRoleProfile(report.targetRole);
   const templates = [
     {
-      title: "Add role-relevant skills",
-      body: report.missingSkills.length > 0
-        ? `Include ${report.missingSkills.slice(0, 5).join(", ")} if you genuinely use them. ATS systems need clearer role signals.`
-        : "Expand your skills section with stronger role-specific phrasing and the exact tools you have used most recently.",
+      title: "Close target skill gaps",
+      body: buildSkillSuggestionBody(report, roleProfile),
     },
     {
-      title: "Expand project depth",
-      body: report.projectSignals.wordCount > 12
-        ? "Rewrite each project as 2-3 lines covering the problem, stack, and a measurable result recruiters can trust."
-        : "Your project section is too brief. Add the problem, tools used, and one concrete outcome for each project.",
+      title: "Prove your listed project",
+      body: buildProjectSuggestionBody(report, roleProfile),
     },
     {
-      title: "Clarify practical experience",
-      body: /student|fresher|n\/?a/i.test(report.previousJobTitle)
-        ? 'Replace thin titles like "Student" with internships, freelance work, open-source work, or meaningful academic contributions.'
-        : `Strengthen your latest role, "${report.previousJobTitle}", with outcomes, scope, and ownership details.`,
+      title: "Tie education to role",
+      body: buildEducationSuggestionBody(report, roleProfile),
     },
     {
-      title: "Tailor wording to the JD",
-      body: `Mirror the language used in ${report.targetRole} job descriptions so recruiters and ATS systems see a direct match faster.`,
+      title: "Set role-specific headline",
+      body: buildRoleSuggestionBody(report, roleProfile),
     },
     {
-      title: "Polish education and certifications",
-      body: report.certifications.length > 0
-        ? `Keep ${pluralize(report.certifications.length, "certification")} visible and list the degree, institution, and graduation year clearly.`
-        : "Add 1-2 relevant certifications or coursework items and tighten the education block with degree details and graduation year.",
+      title: "Connect experience to role",
+      body: buildExperienceSuggestionBody(report, roleProfile),
     },
   ];
 
   return templates.map((template, index) => ({
     number: String(index + 1).padStart(2, "0"),
-    title: createActionTitle(template.title, report.suggestions[index]),
-    body: String(report.suggestions[index] || template.body).trim(),
+    title: template.title,
+    body: template.body.trim(),
     priority: ACTION_PRIORITIES[index],
   }));
 }
@@ -281,10 +771,14 @@ function buildReportModel({ score, suggestions, formData, profileType, scoreBrea
   const resumeSkills = safeArray(form.skills);
   const certifications = safeArray(form.certifications).filter((value) => !/^n\/?a$/i.test(value));
   const breakdown = { ...buildFallbackBreakdown(form, diagnostics || {}), ...(scoreBreakdown || {}) };
-  const missingSkills = pickMissingSkills(form, diagnostics || {});
-  const matchedSkills = safeArray(diagnostics?.matchedSkills);
   const scoreTone = getScoreTone(scoreValue);
   const targetRole = getRoleLabel(form, diagnostics || {});
+  const roleProfile = resolveRoleProfile(targetRole);
+  const missingSkills = pickMissingSkills(form, diagnostics || {}, roleProfile);
+  const matchedSkills = fieldSpecificSkills([
+    ...safeArray(diagnostics?.matchedSkills),
+    ...getProfileMatchedSkills(resumeSkills, roleProfile),
+  ]);
   const educationLabel = getEducationLabel(form);
   const projectSignals = analyzeProjectText(form.completedProjects, resumeSkills);
 
@@ -298,6 +792,7 @@ function buildReportModel({ score, suggestions, formData, profileType, scoreBrea
     strongPoints: safeArray(strongPoints),
     diagnostics: diagnostics || {},
     targetRole,
+    roleProfile,
     educationLabel,
     resumeSkills,
     certifications,
@@ -308,12 +803,12 @@ function buildReportModel({ score, suggestions, formData, profileType, scoreBrea
     previousJobTitle: String(form.previousJobTitle || "N/A").trim() || "N/A",
     experience: Math.max(0, Number(form.experience) || 0),
     currentCity: String(form.currentCity || "").trim(),
+    projectText: String(form.completedProjects || "").trim(),
     reportDate: formatReportDate(),
     fullReportDate: formatFullReportDate(),
   };
 
   report.actionItems = buildActionItems(report);
-  report.projectText = String(form.completedProjects || "").trim();
   report.scoreGoal = clamp(report.score + 20, 0, 100);
 
   return report;
@@ -449,8 +944,10 @@ function drawSectionMarker(doc, number, x, y) {
 }
 
 function getPriorityStyles(priority) {
-  if (priority === "FIX NOW") return { fill: [255, 235, 232], text: COLORS.red };
-  if (priority === "IMPROVE SOON") return { fill: [255, 243, 227], text: COLORS.amber };
+  const normalized = String(priority || "").toUpperCase();
+  if (normalized.includes("FIX") || normalized.includes("HIGH")) return { fill: [255, 235, 232], text: COLORS.red };
+  if (normalized.includes("IMPROVE") || normalized.includes("MEDIUM")) return { fill: [255, 243, 227], text: COLORS.amber };
+  if (normalized.includes("POLISH") || normalized.includes("LOW")) return { fill: [220, 252, 231], text: COLORS.green };
   return { fill: [232, 238, 251], text: [111, 131, 190] };
 }
 
@@ -1024,12 +1521,12 @@ function drawReferenceTrendChart(doc, report, x, y, width, height) {
 
 function drawReferenceSuggestions(doc, report, x, y, width) {
   const items = getReferenceSuggestionItems(report);
-  const rowHeight = 24;
+  const rowHeight = 31;
   drawRoundedPanel(doc, x, y, width, items.length * rowHeight, COLORS.white, [226, 232, 240], 0);
   items.forEach((item, index) => {
     const rowY = y + index * rowHeight;
-    const accent = item.priority === "LOW" ? COLORS.green : item.priority === "MEDIUM" ? COLORS.amber : COLORS.red;
-    const bodyLines = doc.splitTextToSize(item.body, width - 70).slice(0, 2);
+    const accent = getPriorityStyles(item.priority).text;
+    const bodyLines = doc.splitTextToSize(item.body, width - 74).slice(0, 3);
 
     setDrawColor(doc, accent);
     doc.setLineWidth(0.7);
@@ -1043,12 +1540,12 @@ function drawReferenceSuggestions(doc, report, x, y, width) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     setTextColor(doc, COLORS.ink);
-    doc.text(item.title, x + 24, rowY + 8.2);
+    doc.text(item.title, x + 24, rowY + 8.5);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.2);
     setTextColor(doc, COLORS.slate);
-    doc.text(bodyLines, x + 24, rowY + 14.5);
+    doc.text(bodyLines, x + 24, rowY + 15.2);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8.4);
@@ -1058,26 +1555,10 @@ function drawReferenceSuggestions(doc, report, x, y, width) {
 }
 
 function getReferenceSuggestionItems(report) {
-  const baseItems = report.actionItems.slice(0, 3).map((item, index) => ({
+  return report.actionItems.slice(0, 5).map((item, index) => ({
     ...item,
     number: String(index + 1).padStart(2, "0"),
   }));
-
-  return [
-    ...baseItems,
-    {
-      number: "04",
-      title: "Add a structured Skills matrix",
-      body: "A two-column Technical / Soft skills table lets parsers extract skills reliably and helps recruiters scan faster.",
-      priority: "MEDIUM",
-    },
-    {
-      number: "05",
-      title: "Move Skills section above Experience",
-      body: "ATS systems weight early-document content higher. Reorder to put skills in the top quarter of your resume.",
-      priority: "LOW",
-    },
-  ];
 }
 
 function drawReferenceFooter(doc, report, pageNumber) {

@@ -67,6 +67,18 @@ export default function DashboardPage() {
     setIsPDFModalOpen(true);
   };
 
+  const handleDownloadReport = () => {
+    downloadReport({
+      score,
+      suggestions,
+      formData,
+      profileType,
+      scoreBreakdown,
+      strongPoints,
+      diagnostics,
+    });
+  };
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-shell">
@@ -194,54 +206,29 @@ export default function DashboardPage() {
         <section className="dashboard-results">
           {score !== null ? (
             <>
+              <div className="dashboard-report-cta">
+                <div>
+                  <span className="dashboard-section-label">PDF REPORT</span>
+                  <h2>Download your full ATS report</h2>
+                  <p>
+                    Save the complete analysis, score breakdown, skills review,
+                    missing skills, and smart suggestions as a PDF.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="dashboard-button dashboard-download-button"
+                  onClick={handleDownloadReport}
+                >
+                  Download Full PDF Report
+                </button>
+              </div>
               <ScoreCard score={score} formData={formData} profileType={profileType} scoreBreakdown={scoreBreakdown} strongPoints={strongPoints} />
               <Suggestions suggestions={suggestions} />
               <button
                 type="button"
-                className="dashboard-button"
-                style={{ marginTop: "18px", alignSelf: "flex-start", gridColumn: "1 / -1" }}
-                onClick={() =>
-                  downloadReport({
-                    score,
-                    suggestions,
-                    formData,
-                    profileType,
-                    scoreBreakdown,
-                    strongPoints,
-                    diagnostics,
-                  })
-                }
-              >
-                Download report
-              </button>
-              <button
-                type="button"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  borderRadius: "999px",
-                  background: "#ffffff",
-                  border: "2px solid rgba(15, 23, 42, 0.14)",
-                  color: "#0d1b3e",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  transition: "all 0.2s ease",
-                  gridColumn: "1 / -1",
-                }}
+                className="dashboard-secondary-button"
                 onClick={handleUploadNewResume}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f8fbff";
-                  e.currentTarget.style.borderColor = "rgba(13, 27, 62, 0.28)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "#ffffff";
-                  e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.14)";
-                }}
               >
                 Upload New Resume
               </button>
