@@ -78,7 +78,7 @@ export default function Register() {
 
   const handleLinkedInRegister = () => {
     setError("");
-    window.location.href = "/api/auth/linkedin";
+    window.location.href = "/api/user/linkedin";
   };
 
   const submit = async (e) => {

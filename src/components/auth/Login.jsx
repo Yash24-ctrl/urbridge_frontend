@@ -73,7 +73,7 @@ export default function Login() {
   const handleLinkedInLogin = () => {
     setError("");
     clearStoredUser();
-    window.location.href = "/api/auth/linkedin";
+    window.location.href = "/api/user/linkedin";
   };
 
   const submit = async (e) => {
