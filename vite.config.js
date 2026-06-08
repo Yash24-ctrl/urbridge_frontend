@@ -44,6 +44,13 @@ export default defineConfig({
   plugins: [react(), resetLinkTerminalPlugin()],
   server: {
     host: '0.0.0.0', // Allow access from network
+    allowedHosts: [
+      '.trycloudflare.com',
+      '.ngrok-free.dev',
+      '.ngrok-free.app',
+      '.ngrok.io',
+      '.ngrok.app',
+    ],
     proxy: {
       // ✅ Forwards /api requests to your Express backend
       '/api': {
@@ -51,5 +58,16 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: [
+      '.trycloudflare.com',
+      '.ngrok-free.dev',
+      '.ngrok-free.app',
+      '.ngrok.io',
+      '.ngrok.app',
+    ],
   }
 })

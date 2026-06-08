@@ -79,6 +79,7 @@ export default function ManualForm({
   const [apiError, setApiError] = useState("");
   const [activeSkillIndex, setActiveSkillIndex] = useState(null);
   const [skillSuggestions, setSkillSuggestions] = useState([]);
+  const [analysisSource, setAnalysisSource] = useState("manual");
   const dropdownRef = useRef(null);
 
   const [form, setForm] = useState({
@@ -137,6 +138,7 @@ export default function ManualForm({
           skills: data.skills?.length > 0,
           certifications: data.certifications?.length > 0,
         });
+        setAnalysisSource("upload");
 
         // Clear after using
         window.pdfParsedData = null;
@@ -370,6 +372,7 @@ export default function ManualForm({
         desiredJobRoles: form.desiredJobRoles,
         currentCity: form.currentCity,
         previousJobTitle: form.previousJobTitle,
+        source: analysisSource,
       };
 
       const { data } = await API.post("/resume/analyze", payload);
@@ -380,6 +383,7 @@ export default function ManualForm({
       setScoreBreakdown(data.scoreBreakdown || null);
       setStrongPoints(data.strongPoints || []);
       setDiagnostics(data.diagnostics || null);
+      setAnalysisSource("manual");
       setApiError("");
     } catch (err) {
       console.error("Resume analysis error:", err);

@@ -70,6 +70,12 @@ export default function Login() {
     setError("Google login failed");
   };
 
+  const handleLinkedInLogin = () => {
+    setError("");
+    clearStoredUser();
+    window.location.href = "/api/auth/linkedin";
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setError("");
@@ -124,8 +130,7 @@ export default function Login() {
   return (
     <>
       <div
-        className="min-vh-100 d-flex align-items-center justify-content-center bg-light px-3 px-md-4"
-        style={{ background: "linear-gradient(#fff)" }}
+        className="min-vh-100 d-flex align-items-center justify-content-center bg-light auth-pattern-bg px-3 px-md-4"
       >
         <div
           className="w-100 d-flex justify-content-center"
@@ -249,18 +254,29 @@ export default function Login() {
                   {/* Google Button — Centered */}
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
                     <div className="auth-google-shell" ref={googleButtonRef}>
-                      <div className="auth-google-visual">
-                        <span className="auth-google-icon">G</span>
-                        <span className="auth-google-label">Sign in with Google</span>
-                      </div>
-                      <div className="auth-google-overlay">
-                        <GoogleLogin
-                          onSuccess={handleGoogleSuccess}
-                          onError={handleGoogleError}
-                          width={String(googleButtonWidth)}
-                        />
-                      </div>
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        text="signin_with"
+                        theme="outline"
+                        size="large"
+                        shape="rectangular"
+                        logo_alignment="left"
+                        width={String(googleButtonWidth)}
+                      />
                     </div>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
+                    <button
+                      type="button"
+                      className="auth-linkedin-button"
+                      disabled={loading}
+                      onClick={handleLinkedInLogin}
+                    >
+                      <span className="auth-linkedin-icon">in</span>
+                      Continue with LinkedIn
+                    </button>
                   </div>
 
                   {/* Register Link */}
@@ -317,66 +333,54 @@ export default function Login() {
         }
 
         .auth-google-shell {
-          position: relative;
+          display: flex;
+          justify-content: center;
           width: 420px;
           max-width: 100%;
-          overflow: hidden;
-          border-radius: 16px;
+          margin: 0 auto;
         }
 
-        .auth-google-visual {
-          display: grid;
-          grid-template-columns: 74px 1fr;
-          align-items: center;
-          width: 100%;
-          min-height: 72px;
-          padding: 10px 16px 10px 10px;
-          border-radius: 16px;
-          background: linear-gradient(180deg, #4f8df5 0%, #3f7fe9 100%);
-          color: #ffffff;
-          font-size: 1.02rem;
-          font-weight: 700;
-          box-shadow: 0 10px 24px rgba(63, 127, 233, 0.22);
-          pointer-events: none;
-        }
-
-        .auth-google-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 74px;
-          height: 52px;
-          border-radius: 12px;
-          background: #ffffff;
-          color: #4285f4;
-          font-size: 2.2rem;
-          font-weight: 800;
-          line-height: 1;
-          box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
-        }
-
-        .auth-google-label {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 0;
-          padding: 0 10px;
-          text-align: center;
-          font-size: 0.95rem;
-        }
-
-        .auth-google-overlay {
-          position: absolute;
-          inset: 0;
-          opacity: 0.01;
-        }
-
-        .auth-google-overlay > div,
-        .auth-google-overlay iframe {
+        .auth-google-shell > div,
+        .auth-google-shell iframe {
           width: 100% !important;
           min-width: 100% !important;
-          height: 100% !important;
-          min-height: 52px !important;
+        }
+
+        .auth-linkedin-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          width: 420px;
+          max-width: 100%;
+          min-height: 44px;
+          border: 0;
+          border-radius: 6px;
+          background: #0077B5;
+          color: #ffffff;
+          font-size: 0.95rem;
+          font-weight: 600;
+          box-shadow: 0 10px 22px rgba(0, 119, 181, 0.22);
+        }
+
+        .auth-linkedin-button:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .auth-linkedin-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          height: 22px;
+          border-radius: 4px;
+          background: #ffffff;
+          color: #0077B5;
+          font-family: Arial, sans-serif;
+          font-size: 0.86rem;
+          font-weight: 800;
+          line-height: 1;
         }
 
         @media (max-width: 576px) {
@@ -409,20 +413,8 @@ export default function Login() {
             width: 100%;
           }
 
-          .auth-google-visual {
-            grid-template-columns: 64px 1fr;
-            min-height: 62px;
-            padding: 8px 12px 8px 8px;
-          }
-
-          .auth-google-icon {
-            width: 64px;
-            height: 46px;
-            font-size: 1.95rem;
-          }
-
-          .auth-google-label {
-            font-size: 0.9rem;
+          .auth-linkedin-button {
+            width: 100%;
           }
         }
       `}</style>

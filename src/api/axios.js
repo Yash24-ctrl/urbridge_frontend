@@ -68,7 +68,16 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((req) => {
-  const publicPaths = ["/user/login", "/user/register", "/user/forgot-password", "/user/reset-password", "/user/google-login", "/user/google-register"];
+  const publicPaths = [
+    "/user/login",
+    "/user/register",
+    "/user/forgot-password",
+    "/user/reset-password",
+    "/user/google-login",
+    "/user/google-register",
+    "/auth/linkedin",
+    "/auth/linkedin/callback",
+  ];
   const isPublic = publicPaths.some((path) => req.url?.includes(path));
 
   if (!isPublic) {

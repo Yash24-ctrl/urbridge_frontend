@@ -8,6 +8,8 @@ import PDFUploadModal from "./PDFUploadModal";
 import { downloadReport } from "./pdfDownload";
 import { AuthContext } from "../context/auth-context";
 import logo from "../Icon.png";
+import { COUNSELLOR_SELECTION_KEY, COUNSELLORS } from "../data/counsellors";
+import API from "../api/axios";
 
 export default function DashboardPage() {
   const { user, logout } = useContext(AuthContext);
@@ -22,6 +24,15 @@ export default function DashboardPage() {
   const [diagnostics, setDiagnostics] = useState(null);
   const [isPDFModalOpen, setIsPDFModalOpen] = useState(false);
   const [manualFormResetKey, setManualFormResetKey] = useState(0);
+  const [isCounsellingMenuOpen, setIsCounsellingMenuOpen] = useState(false);
+  const [showSessionsModal, setShowSessionsModal] = useState(false);
+  const [sessions, setSessions] = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState("");
+  const [showResumeHistoryModal, setShowResumeHistoryModal] = useState(false);
+  const [resumeHistory, setResumeHistory] = useState([]);
+  const [resumeHistoryLoading, setResumeHistoryLoading] = useState(false);
+  const [resumeHistoryError, setResumeHistoryError] = useState("");
 
   const insights = [
     { label: "Fast resume scan", value: "30 sec" },
@@ -36,6 +47,78 @@ export default function DashboardPage() {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleCallCounsellor = () => {
+    const counsellor = COUNSELLORS[0];
+    setIsCounsellingMenuOpen(false);
+    window.localStorage.setItem(COUNSELLOR_SELECTION_KEY, JSON.stringify(counsellor));
+    navigate("/counselling", { state: { selectedCounsellor: counsellor } });
+  };
+
+  const handleYourSessions = async () => {
+    setIsCounsellingMenuOpen(false);
+    setShowSessionsModal(true);
+    setSessionsLoading(true);
+    setSessionsError("");
+
+    try {
+      const response = await API.get("/counselling/history");
+      setSessions(response.data?.bookings || []);
+    } catch (error) {
+      setSessionsError(error.response?.data?.message || error.message || "Unable to load your sessions.");
+      setSessions([]);
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  const getSessionMeetLink = (session) =>
+    session?.meetLink || session?.googleMeetLink || session?.google_meet_link || "";
+
+  const handleResumeHistory = async () => {
+    setShowResumeHistoryModal(true);
+    setResumeHistoryLoading(true);
+    setResumeHistoryError("");
+
+    try {
+      const response = await API.get("/resume/analysis/history");
+      setResumeHistory(response.data?.analyses || []);
+    } catch (error) {
+      setResumeHistoryError(error.response?.data?.message || error.message || "Unable to load resume history.");
+      setResumeHistory([]);
+    } finally {
+      setResumeHistoryLoading(false);
+    }
+  };
+
+  const formatResumeHistoryDate = (dateValue) => {
+    if (!dateValue) {
+      return "Date unavailable";
+    }
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Date unavailable";
+    }
+
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
+  const getResumeHistorySourceLabel = (source) =>
+    source === "upload" ? "PDF Upload" : "Manual Input";
+
+  const getResumeHistoryTitle = (historyItem) => {
+    const snapshot = historyItem?.profileSnapshot || {};
+    return snapshot.desiredJobRoles || snapshot.previousJobTitle || "Resume analysis";
   };
 
   const handlePDFExtract = (extractedText) => {
@@ -107,9 +190,58 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="dashboard-hero-panel">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px", flexWrap: "wrap", maxWidth: "100%" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto 1fr",
+                alignItems: "center",
+                gap: "12px",
+                maxWidth: "100%",
+                width: "100%",
+              }}
+            >
+              <div className="dashboard-counselling-menu">
+                <button
+                  type="button"
+                  className="dashboard-counselling-trigger"
+                  aria-haspopup="menu"
+                  aria-expanded={isCounsellingMenuOpen}
+                  onClick={() => setIsCounsellingMenuOpen((isOpen) => !isOpen)}
+                >
+                  <span>AI Counselling</span>
+                  <span className="dashboard-counselling-chevron" aria-hidden="true" />
+                </button>
+                {isCounsellingMenuOpen && (
+                  <div className="dashboard-counselling-dropdown" role="menu">
+                    <button
+                      type="button"
+                      className="dashboard-counselling-option"
+                      role="menuitem"
+                      onClick={() => setIsCounsellingMenuOpen(false)}
+                    >
+                      Chat With Counsellor
+                    </button>
+                    <button
+                      type="button"
+                      className="dashboard-counselling-option"
+                      role="menuitem"
+                      onClick={handleCallCounsellor}
+                    >
+                      Call with Counsellor
+                    </button>
+                    <button
+                      type="button"
+                      className="dashboard-counselling-option"
+                      role="menuitem"
+                      onClick={handleYourSessions}
+                    >
+                      Your Sessions
+                    </button>
+                  </div>
+                )}
+              </div>
               {user?.username && (
-                <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.9rem", wordBreak: "break-word" }}>
+                <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.9rem", textAlign: "center", wordBreak: "break-word" }}>
                   {user.username}
                 </span>
               )}
@@ -118,6 +250,7 @@ export default function DashboardPage() {
                 onClick={handleLogout}
                 aria-label="Logout"
                 style={{
+                  justifySelf: "end",
                   padding: "10px 16px",
                   borderRadius: "999px",
                   background: "rgba(255, 255, 255, 0.14)",
@@ -148,6 +281,13 @@ export default function DashboardPage() {
               <strong>{score ?? 84}</strong>
               <small>{score !== null ? "Live score from your latest analysis" : "Sample benchmark for a polished resume"}</small>
             </div>
+            <button
+              type="button"
+              className="dashboard-resume-history-button"
+              onClick={handleResumeHistory}
+            >
+              Resume History
+            </button>
             <button
               type="button"
               onClick={() => setIsPDFModalOpen(true)}
@@ -251,6 +391,158 @@ export default function DashboardPage() {
         onExtract={handlePDFExtract}
         onAutoFill={handleAutoFill}
       />
+
+      {showResumeHistoryModal && (
+        <div
+          className="dashboard-counsellor-modal-backdrop"
+          onClick={() => setShowResumeHistoryModal(false)}
+        >
+          <section
+            className="dashboard-counsellor-section dashboard-counsellor-modal-card dashboard-resume-history-modal-card"
+            aria-label="Your resume history"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="dashboard-counsellor-modal-x"
+              aria-label="Close resume history"
+              onClick={() => setShowResumeHistoryModal(false)}
+            >
+              ×
+            </button>
+            <div className="dashboard-counsellor-heading">
+              <div>
+                <span className="dashboard-section-label">RESUME HISTORY</span>
+                <h2>Your resume history</h2>
+                <p>Review resumes analyzed from PDF uploads and manual inputs.</p>
+              </div>
+            </div>
+
+            {resumeHistoryLoading ? (
+              <div className="dashboard-sessions-empty">Loading resume history...</div>
+            ) : resumeHistoryError ? (
+              <div className="dashboard-sessions-error">{resumeHistoryError}</div>
+            ) : resumeHistory.length === 0 ? (
+              <div className="dashboard-sessions-empty">No resume history found.</div>
+            ) : (
+              <div className="dashboard-resume-history-list">
+                {resumeHistory.map((historyItem) => {
+                  const snapshot = historyItem.profileSnapshot || {};
+                  const skills = Array.isArray(snapshot.skills) ? snapshot.skills.filter(Boolean) : [];
+                  const suggestionsList = Array.isArray(historyItem.suggestions)
+                    ? historyItem.suggestions.filter(Boolean)
+                    : [];
+
+                  return (
+                    <article className="dashboard-resume-history-card" key={historyItem._id || historyItem.id}>
+                      <div className="dashboard-resume-history-main">
+                        <span className={`dashboard-session-status ${historyItem.source === "upload" ? "is-remaining" : "is-completed"}`}>
+                          {getResumeHistorySourceLabel(historyItem.source)}
+                        </span>
+                        <h3>{getResumeHistoryTitle(historyItem)}</h3>
+                        <p>{formatResumeHistoryDate(historyItem.createdAt)}</p>
+                      </div>
+                      <div className="dashboard-resume-history-score">
+                        <span>Score</span>
+                        <strong>{typeof historyItem.score === "number" ? historyItem.score : "—"}</strong>
+                        <em>/100</em>
+                      </div>
+                      <div className="dashboard-resume-history-details">
+                        <div>
+                          <span>Experience</span>
+                          <strong>{snapshot.experience || 0} Years</strong>
+                        </div>
+                        <div>
+                          <span>Top Skills</span>
+                          <strong>{skills.length > 0 ? skills.slice(0, 4).join(", ") : "Not available"}</strong>
+                        </div>
+                      </div>
+                      <p className="dashboard-resume-history-suggestion">
+                        {suggestionsList[0] || "No suggestion stored for this analysis."}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
+
+      {showSessionsModal && (
+        <div
+          className="dashboard-counsellor-modal-backdrop"
+          onClick={() => setShowSessionsModal(false)}
+        >
+          <section
+            className="dashboard-counsellor-section dashboard-counsellor-modal-card dashboard-sessions-modal-card"
+            aria-label="Your counselling sessions"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="dashboard-counsellor-modal-x"
+              aria-label="Close your sessions"
+              onClick={() => setShowSessionsModal(false)}
+            >
+              ×
+            </button>
+            <div className="dashboard-counsellor-heading">
+              <div>
+                <span className="dashboard-section-label">YOUR SESSIONS</span>
+                <h2>Your counselling sessions</h2>
+                <p>View your completed and remaining counselling sessions in one place.</p>
+              </div>
+            </div>
+
+            {sessionsLoading ? (
+              <div className="dashboard-sessions-empty">Loading your sessions...</div>
+            ) : sessionsError ? (
+              <div className="dashboard-sessions-error">{sessionsError}</div>
+            ) : sessions.length === 0 ? (
+              <div className="dashboard-sessions-empty">No counselling sessions found.</div>
+            ) : (
+              <div className="dashboard-sessions-list">
+                {sessions.map((session) => {
+                  const isCompleted = session.status === "completed";
+                  const meetLink = getSessionMeetLink(session);
+
+                  return (
+                    <article className="dashboard-session-card" key={session.bookingId || session.id}>
+                      <div className="dashboard-session-main">
+                        <span className={`dashboard-session-status ${isCompleted ? "is-completed" : "is-remaining"}`}>
+                          {isCompleted ? "Completed" : "Remaining"}
+                        </span>
+                        <h3>{session.counsellorName || "AI Career Counsellor"}</h3>
+                        <p>{session.counsellorTitle || "AI Career Counsellor"}</p>
+                      </div>
+                      <div className="dashboard-session-details">
+                        <div>
+                          <span>Date & Time</span>
+                          <strong>{session.readableDate || session.date || "Date unavailable"} at {session.timeSlot || "Time unavailable"}</strong>
+                        </div>
+                        <div>
+                          <span>Booking ID</span>
+                          <strong>{session.bookingId || session.id || "Not available"}</strong>
+                        </div>
+                      </div>
+                      <div className="dashboard-session-actions">
+                        {isCompleted ? (
+                          <button type="button" disabled>Session Ended</button>
+                        ) : meetLink ? (
+                          <a href={meetLink} target="_blank" rel="noreferrer">Join Meeting</a>
+                        ) : (
+                          <button type="button" disabled>Meeting Unavailable</button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
     </div>
   );
 }
