@@ -17,6 +17,34 @@ function getErrorMessage(error, fallback) {
   return error?.response?.data?.message || error?.message || fallback;
 }
 
+function isRouteNotFound(error) {
+  return error?.response?.status === 404
+    || /route not found/i.test(error?.response?.data?.message || error?.message || "");
+}
+
+async function requestCounsellingApi(method, path, configOrData, maybeConfig) {
+  const prefixes = ["/counseling", "/counselling", "/user/counseling", "/user/counselling"];
+  let lastError = null;
+
+  for (const prefix of prefixes) {
+    try {
+      if (method === "get") {
+        return await API.get(`${prefix}${path}`, configOrData);
+      }
+
+      return await API.post(`${prefix}${path}`, configOrData, maybeConfig);
+    } catch (error) {
+      lastError = error;
+
+      if (!isRouteNotFound(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 function getOrdinalSuffix(day) {
   if (day >= 11 && day <= 13) {
     return "th";
@@ -243,7 +271,7 @@ export default function Counselling() {
     setFormError("");
 
     try {
-      const response = await API.get("/counseling/slots", {
+      const response = await requestCounsellingApi("get", "/slots", {
         params: { date: formatDateOption(date) },
       });
       const slots = response.data?.slots || [];
@@ -271,7 +299,7 @@ export default function Counselling() {
     setFormError("");
 
     try {
-      const response = await API.get("/counseling/slots");
+      const response = await requestCounsellingApi("get", "/slots");
       const dates = response.data?.dates?.length
         ? response.data.dates
         : buildLocalDateOptions();
@@ -407,7 +435,7 @@ export default function Counselling() {
 
       console.log("Booking payload", bookingPayload);
 
-      const response = await API.post("/counseling/book", bookingPayload);
+      const response = await requestCounsellingApi("post", "/book", bookingPayload);
 
       setConfirmation(
         response.data?.booking

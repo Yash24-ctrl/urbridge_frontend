@@ -11,6 +11,35 @@ import logo from "../Icon.png";
 import { COUNSELLOR_SELECTION_KEY, COUNSELLORS } from "../data/counsellors";
 import API from "../api/axios";
 
+function isRouteNotFound(error) {
+  return error?.response?.status === 404
+    || /route not found/i.test(error?.response?.data?.message || error?.message || "");
+}
+
+async function getCounsellingHistory() {
+  const paths = [
+    "/counseling/history",
+    "/counselling/history",
+    "/user/counseling/history",
+    "/user/counselling/history",
+  ];
+  let lastError = null;
+
+  for (const path of paths) {
+    try {
+      return await API.get(path);
+    } catch (error) {
+      lastError = error;
+
+      if (!isRouteNotFound(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export default function DashboardPage() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -63,7 +92,7 @@ export default function DashboardPage() {
     setSessionsError("");
 
     try {
-      const response = await API.get("/counseling/history");
+      const response = await getCounsellingHistory();
       setSessions(response.data?.bookings || []);
     } catch (error) {
       setSessionsError(error.response?.data?.message || error.message || "Unable to load your sessions.");
