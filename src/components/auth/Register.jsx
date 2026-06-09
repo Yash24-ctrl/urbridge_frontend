@@ -153,7 +153,11 @@ export default function Register() {
                 <div className="card-body p-4 p-md-5">
                   {/* Header */}
                   <div className="text-center mb-4">
-                    <div className="brand-logo mb-3">
+                    <Link
+                      to="/"
+                      className="brand-logo mb-3 d-inline-block"
+                      aria-label="Open UrBridgeAI landing page"
+                    >
                       <img
                         src={logo}
                         alt="UrBridgeAI"
@@ -166,7 +170,7 @@ export default function Register() {
                         }}
                         className="img-fluid"
                       />
-                    </div>
+                    </Link>
                     <p className="text-black mb-0">Join the UrBridge.ai</p>
                   </div>
 

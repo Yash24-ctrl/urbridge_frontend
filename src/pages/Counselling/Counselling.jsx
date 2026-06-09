@@ -477,7 +477,9 @@ export default function Counselling() {
         </nav>
 
         <aside className={styles.sidebar}>
-          <img src={logo} alt="UrBridge.ai" className={styles.logo} />
+          <Link to="/" aria-label="Open UrBridgeAI landing page">
+            <img src={logo} alt="UrBridge.ai" className={styles.logo} />
+          </Link>
           <div>
             <span className={styles.sidebarLabel}>AI Counselling</span>
             <h1>Book your counseling session</h1>

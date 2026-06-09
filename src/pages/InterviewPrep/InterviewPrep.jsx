@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "./InterviewPrep.module.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../Icon.png";
 
@@ -481,9 +481,9 @@ Return ONLY this exact JSON (no markdown, no explanation, no extra text):
   return (
     <>
       <header className={styles.topbar}>
-        <a href="#" className={styles.topbarLogo}>
+        <Link to="/" className={styles.topbarLogo} aria-label="Open UrBridgeAI landing page">
           <img src={logo} alt="UrBridgeAI" />
-        </a>
+        </Link>
         <div className={styles.topbarRight}>
           <span className={styles.topbarPill}>Interview Prep</span>
         </div>

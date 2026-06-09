@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UploadCV from "./uploadCV";
 import ManualForm from "./ManualForm";
 import ScoreCard from "./ScoreCard";
@@ -223,11 +223,13 @@ export default function DashboardPage() {
         <section className="dashboard-hero">
           <div className="dashboard-hero-copy">
             <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "18px" }}>
-              <img
-                src={logo}
-                alt="UrBridgeAI"
-                className="dashboard-brand-logo"
-              />
+              <Link to="/" aria-label="Open UrBridgeAI landing page">
+                <img
+                  src={logo}
+                  alt="UrBridgeAI"
+                  className="dashboard-brand-logo"
+                />
+              </Link>
             </div>
             <h1>Turn your resume into a stronger first impression.</h1>
             <p>

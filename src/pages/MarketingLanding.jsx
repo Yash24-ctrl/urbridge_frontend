@@ -70,9 +70,9 @@ export default function MarketingLanding() {
           <a href="#features">Features</a>
           <a href="#how-it-works">How it works</a>
           <a href="#about">About</a>
-          <Link to="/login">Login</Link>
+          <Link to="/login">Sign in</Link>
           <Link className="urbridge-nav-button" to="/register">
-            Register
+            Get Started
           </Link>
         </nav>
       </header>
