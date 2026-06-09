@@ -71,8 +71,6 @@ API.interceptors.request.use((req) => {
   const publicPaths = [
     "/user/login",
     "/user/register",
-    "/user/forgot-password",
-    "/user/reset-password",
     "/user/google-login",
     "/user/google-register",
     "/auth/linkedin",

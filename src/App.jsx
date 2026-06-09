@@ -4,8 +4,6 @@ import { AuthContext } from "./context/auth-context";
 import Login from "./components/auth/Login.jsx";
 import Register from "./components/auth/Register";
 import AuthCallback from "./components/auth/AuthCallback";
-import ForgotPassword from "./components/auth/ForgetPassword";
-import ResetPassword from "./components/auth/ResetPassword";
 import DashboardPage from "./Dashboard/DashboardPage";
 import Counselling from "./pages/Counselling";
 import InterviewPrep from "./pages/InterviewPrep";
@@ -44,8 +42,6 @@ export default function App() {
             </PublicRoute>
           }
         />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/dashboard"

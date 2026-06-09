@@ -220,12 +220,6 @@ export default function Login() {
                       ) : null}
                     </div>
 
-                    <div className="mb-4 text-end">
-                      <Link to="/forgot-password" className="text-decoration-none text-black large">
-                        Forgot your password?
-                      </Link>
-                    </div>
-
                     <button
                       className="btn btn btn-lg w-100 mb-3"
                       disabled={loading}
