@@ -85,6 +85,32 @@ export default function DashboardPage() {
       const response = await API.get("/resume/analysis/history");
       setResumeHistory(response.data?.analyses || []);
     } catch (error) {
+      const isMissingHistoryRoute =
+        error.response?.status === 404 &&
+        String(error.response?.data?.message || "").toLowerCase().includes("route not found");
+
+      if (isMissingHistoryRoute) {
+        try {
+          const latestResponse = await API.get("/resume/analysis/latest");
+          const latestAnalysis = latestResponse.data?.analysis;
+          setResumeHistory(latestAnalysis ? [latestAnalysis] : []);
+          return;
+        } catch (fallbackError) {
+          if (fallbackError.response?.status === 404) {
+            setResumeHistory([]);
+            return;
+          }
+
+          setResumeHistoryError(
+            fallbackError.response?.data?.message ||
+              fallbackError.message ||
+              "Unable to load resume history."
+          );
+          setResumeHistory([]);
+          return;
+        }
+      }
+
       setResumeHistoryError(error.response?.data?.message || error.message || "Unable to load resume history.");
       setResumeHistory([]);
     } finally {
