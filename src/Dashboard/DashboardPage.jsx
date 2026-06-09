@@ -18,10 +18,10 @@ function isRouteNotFound(error) {
 
 async function getCounsellingHistory() {
   const paths = [
-    "/counseling/history",
-    "/counselling/history",
     "/user/counseling/history",
     "/user/counselling/history",
+    "/counseling/history",
+    "/counselling/history",
   ];
   let lastError = null;
 

@@ -23,7 +23,7 @@ function isRouteNotFound(error) {
 }
 
 async function requestCounsellingApi(method, path, configOrData, maybeConfig) {
-  const prefixes = ["/counseling", "/counselling", "/user/counseling", "/user/counselling"];
+  const prefixes = ["/user/counseling", "/user/counselling", "/counseling", "/counselling"];
   let lastError = null;
 
   for (const prefix of prefixes) {
