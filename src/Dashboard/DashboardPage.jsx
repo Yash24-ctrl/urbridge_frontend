@@ -63,7 +63,7 @@ export default function DashboardPage() {
     setSessionsError("");
 
     try {
-      const response = await API.get("/counselling/history");
+      const response = await API.get("/counseling/history");
       setSessions(response.data?.bookings || []);
     } catch (error) {
       setSessionsError(error.response?.data?.message || error.message || "Unable to load your sessions.");

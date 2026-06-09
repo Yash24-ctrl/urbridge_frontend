@@ -243,7 +243,7 @@ export default function Counselling() {
     setFormError("");
 
     try {
-      const response = await API.get("/counselling/slots", {
+      const response = await API.get("/counseling/slots", {
         params: { date: formatDateOption(date) },
       });
       const slots = response.data?.slots || [];
@@ -271,7 +271,7 @@ export default function Counselling() {
     setFormError("");
 
     try {
-      const response = await API.get("/counselling/slots");
+      const response = await API.get("/counseling/slots");
       const dates = response.data?.dates?.length
         ? response.data.dates
         : buildLocalDateOptions();
@@ -407,7 +407,7 @@ export default function Counselling() {
 
       console.log("Booking payload", bookingPayload);
 
-      const response = await API.post("/counselling/book", bookingPayload);
+      const response = await API.post("/counseling/book", bookingPayload);
 
       setConfirmation(
         response.data?.booking
