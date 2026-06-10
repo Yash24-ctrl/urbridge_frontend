@@ -2794,6 +2794,7 @@ img {
 /* Clean, professional UrBridgeAI marketing page */
 .urbridge-landing {
   min-height: 100vh;
+  overflow-x: hidden;
   padding: 20px clamp(16px, 4vw, 54px) 52px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(239, 245, 255, 0.92)),
@@ -2818,13 +2819,13 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 14px 18px;
-  border: 1px solid rgba(148, 163, 184, 0.26);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(14px);
+  gap: 30px;
+  padding: 12px 18px;
+  border: 1px solid #d9e2ec;
+  border-radius: 12px;
+  background: #f8fafc;
+  box-shadow: none;
+  backdrop-filter: none;
   overflow: visible;
 }
 
@@ -2841,9 +2842,12 @@ img {
 
 .urbridge-brand img {
   width: 194px;
-  height: 48px;
-  object-fit: cover;
+  height: 44px;
+  object-fit: contain;
   object-position: center;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .urbridge-nav-links {
@@ -2851,19 +2855,19 @@ img {
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 8px 22px;
+  gap: 10px 28px;
 }
 
 .urbridge-nav-links a {
-  color: #334155;
-  font-size: 0.95rem;
-  font-weight: 700;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 750;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .urbridge-nav-links a:hover {
-  color: #0b3d91;
+  color: #10b981;
 }
 
 .urbridge-counselling-menu {
@@ -2881,9 +2885,9 @@ img {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #334155;
-  font-size: 0.95rem;
-  font-weight: 700;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 750;
   line-height: 1.2;
   cursor: pointer;
   transition: color 0.2s ease;
@@ -2891,7 +2895,7 @@ img {
 
 .urbridge-counselling-trigger:hover,
 .urbridge-counselling-trigger[aria-expanded="true"] {
-  color: #0b3d91;
+  color: #10b981;
 }
 
 .urbridge-counselling-chevron {
@@ -2967,11 +2971,27 @@ img {
 }
 
 .urbridge-nav-button {
-  min-height: 42px;
-  padding: 0 20px;
+  min-height: 40px;
+  padding: 0 22px;
   background: #0b3d91;
   color: #ffffff !important;
-  box-shadow: 0 10px 24px rgba(11, 61, 145, 0.2);
+  box-shadow: none;
+}
+
+.urbridge-nav-links a[href="/login"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1.5px solid #1f2937;
+  border-radius: 4px;
+  color: #1f2937;
+}
+
+.urbridge-nav-links a[href="/login"]:hover {
+  border-color: #10b981;
+  color: #10b981;
 }
 
 .urbridge-primary-button {
@@ -2993,6 +3013,11 @@ img {
   background: #082f73;
   color: #ffffff;
   transform: none;
+}
+
+.urbridge-nav-button:hover {
+  background: #082f73;
+  color: #ffffff !important;
 }
 
 .urbridge-secondary-button:hover {
@@ -3447,7 +3472,9 @@ img {
   display: flex;
   width: max-content;
   gap: 14px;
-  animation: urbridgeReviewLoop 32s linear infinite;
+  animation: urbridgeReviewLoop var(--review-loop-duration, 40s) linear infinite;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .urbridge-review-card {
@@ -3517,11 +3544,11 @@ img {
 
 @keyframes urbridgeReviewLoop {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translateX(calc(-50% - 9px));
+    transform: translate3d(calc(-50% - 7px), 0, 0);
   }
 }
 
@@ -3623,14 +3650,16 @@ img {
 
 @media (max-width: 560px) {
   .urbridge-landing {
-    padding: 10px 12px 42px;
+    padding: 12px 12px 40px;
   }
 
   .urbridge-nav {
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border-radius: 20px;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
   }
 
   .urbridge-brand {
@@ -3639,34 +3668,39 @@ img {
   }
 
   .urbridge-brand img {
-    width: 184px;
-    height: 42px;
+    width: min(230px, 74vw);
+    height: 52px;
   }
 
   .urbridge-nav-links {
     display: grid;
     width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
+    overflow: visible;
+    padding: 0;
   }
 
   .urbridge-counselling-menu {
     width: 100%;
+    min-width: 0;
   }
 
   .urbridge-counselling-trigger {
     width: 100%;
-    min-height: 40px;
-    padding: 0 8px;
+    min-height: 48px;
+    padding: 0 14px;
     border: 1px solid #d9e4f2;
     border-radius: 999px;
     background: #ffffff;
-    color: #334155;
-    font-size: clamp(0.76rem, 3.2vw, 0.88rem);
+    color: #1f2937;
+    font-size: clamp(0.88rem, 3.7vw, 1rem);
+    font-weight: 800;
     white-space: nowrap;
   }
 
   .urbridge-counselling-dropdown {
+    top: calc(100% + 8px);
     right: 0;
     left: 0;
     min-width: 100%;
@@ -3681,29 +3715,40 @@ img {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    padding: 0 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
     border: 1px solid #d9e4f2;
     border-radius: 999px;
     background: #ffffff;
-    font-size: clamp(0.76rem, 3.2vw, 0.88rem);
+    color: #1f2937;
+    font-size: clamp(0.88rem, 3.7vw, 1rem);
+    font-weight: 800;
     line-height: 1.2;
     text-align: center;
     white-space: nowrap;
   }
 
+  .urbridge-nav-links a[href="/login"] {
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #d9e4f2;
+    border-radius: 999px;
+  }
+
   .urbridge-nav-links .urbridge-nav-button {
-    min-height: 40px;
-    padding: 0 12px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 999px;
     border-color: #0b3d91;
     background: #0b3d91;
     color: #ffffff !important;
-    box-shadow: 0 10px 22px rgba(11, 61, 145, 0.18);
+    box-shadow: none;
   }
 
   .urbridge-hero {
-    gap: 24px;
-    padding: 26px 0 24px;
+    gap: 22px;
+    padding: 22px 0 22px;
   }
 
   .urbridge-kicker {
@@ -3717,7 +3762,7 @@ img {
   }
 
   .urbridge-hero h1 {
-    font-size: clamp(2.05rem, 10.8vw, 3rem);
+    font-size: clamp(2rem, 10vw, 2.85rem);
     letter-spacing: -0.035em;
     line-height: 1.08;
   }
@@ -3762,7 +3807,6 @@ img {
 
   .urbridge-review-track {
     gap: 14px;
-    animation-duration: 38s;
   }
 
   .urbridge-review-card {
@@ -3857,8 +3901,24 @@ img {
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 380px) {
+  .urbridge-nav {
+    padding: 14px;
+  }
+
   .urbridge-nav-links {
     grid-template-columns: 1fr;
+  }
+
+  .urbridge-brand img {
+    width: min(210px, 78vw);
+    height: 48px;
+  }
+
+  .urbridge-nav-links a,
+  .urbridge-counselling-trigger,
+  .urbridge-nav-links a[href="/login"],
+  .urbridge-nav-links .urbridge-nav-button {
+    min-height: 44px;
   }
 }

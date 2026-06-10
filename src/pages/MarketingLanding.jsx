@@ -1,7 +1,7 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/auth-context";
-import logo from "../assets/urbridge-logo.jpg";
+import logo from "../Icon.png";
 
 const productHighlights = [
   "Resume score with clear explanation",
@@ -121,7 +121,42 @@ const benefits = [
 export default function MarketingLanding() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const reviewTrackRef = useRef(null);
   const [isCounsellingMenuOpen, setIsCounsellingMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const syncReviewSpeed = () => {
+      const track = reviewTrackRef.current;
+
+      if (!track) {
+        return;
+      }
+
+      const loopDistance = track.scrollWidth / 2;
+      const pixelsPerSecond = 39;
+      const duration = Math.min(54, Math.max(34, loopDistance / pixelsPerSecond));
+
+      track.style.setProperty("--review-loop-duration", `${duration.toFixed(2)}s`);
+    };
+
+    syncReviewSpeed();
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(syncReviewSpeed)
+        : null;
+
+    if (resizeObserver && reviewTrackRef.current) {
+      resizeObserver.observe(reviewTrackRef.current);
+    }
+
+    window.addEventListener("resize", syncReviewSpeed);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", syncReviewSpeed);
+    };
+  }, []);
 
   const handleCounsellingTrigger = () => {
     setIsCounsellingMenuOpen((isOpen) => !isOpen);
@@ -347,7 +382,7 @@ export default function MarketingLanding() {
           </p>
         </div>
         <div className="urbridge-review-loop">
-          <div className="urbridge-review-track">
+          <div className="urbridge-review-track" ref={reviewTrackRef}>
             {reviews.map((review) => (
               <article className="urbridge-review-card" key={review.name}>
                 <div className="urbridge-review-top">
