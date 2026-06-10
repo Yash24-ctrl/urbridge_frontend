@@ -125,36 +125,72 @@ export default function MarketingLanding() {
   const [isCounsellingMenuOpen, setIsCounsellingMenuOpen] = useState(false);
 
   useEffect(() => {
-    const syncReviewSpeed = () => {
-      const track = reviewTrackRef.current;
+    const track = reviewTrackRef.current;
 
-      if (!track) {
-        return;
-      }
+    if (!track) {
+      return undefined;
+    }
 
-      const loopDistance = track.scrollWidth / 2;
-      const pixelsPerSecond = 39;
-      const duration = Math.min(54, Math.max(34, loopDistance / pixelsPerSecond));
+    let animationFrameId;
+    let loopDistance = 0;
+    let offset = 0;
+    let lastTimestamp = 0;
+    const pixelsPerSecond = 34;
 
-      track.style.setProperty("--review-loop-duration", `${duration.toFixed(2)}s`);
+    const moveTrack = () => {
+      track.style.transform = `translate3d(-${offset}px, 0, 0)`;
     };
 
-    syncReviewSpeed();
+    const measureLoop = () => {
+      const duplicateStartIndex = Math.floor(track.children.length / 2);
+      const duplicateStart = track.children[duplicateStartIndex];
+
+      loopDistance = duplicateStart?.offsetLeft || track.scrollWidth / 2;
+      offset = loopDistance > 0 ? offset % loopDistance : 0;
+      moveTrack();
+    };
+
+    const animateReviews = (timestamp) => {
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+      }
+
+      const elapsed = Math.min(timestamp - lastTimestamp, 80);
+      lastTimestamp = timestamp;
+
+      if (loopDistance > 0) {
+        offset = (offset + (elapsed / 1000) * pixelsPerSecond) % loopDistance;
+        moveTrack();
+      }
+
+      animationFrameId = window.requestAnimationFrame(animateReviews);
+    };
+
+    const resetAnimationClock = () => {
+      lastTimestamp = 0;
+    };
+
+    measureLoop();
 
     const resizeObserver =
       typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(syncReviewSpeed)
+        ? new ResizeObserver(measureLoop)
         : null;
 
-    if (resizeObserver && reviewTrackRef.current) {
-      resizeObserver.observe(reviewTrackRef.current);
+    if (resizeObserver) {
+      resizeObserver.observe(track);
     }
 
-    window.addEventListener("resize", syncReviewSpeed);
+    document.fonts?.ready?.then(measureLoop).catch(() => {});
+    window.addEventListener("resize", measureLoop);
+    document.addEventListener("visibilitychange", resetAnimationClock);
+    animationFrameId = window.requestAnimationFrame(animateReviews);
 
     return () => {
+      window.cancelAnimationFrame(animationFrameId);
       resizeObserver?.disconnect();
-      window.removeEventListener("resize", syncReviewSpeed);
+      window.removeEventListener("resize", measureLoop);
+      document.removeEventListener("visibilitychange", resetAnimationClock);
     };
   }, []);
 

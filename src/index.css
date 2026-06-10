@@ -3465,6 +3465,7 @@ img {
   overflow: hidden;
   margin-top: 22px;
   padding: 6px 0 10px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 
@@ -3472,7 +3473,7 @@ img {
   display: flex;
   width: max-content;
   gap: 14px;
-  animation: urbridgeReviewLoop var(--review-loop-duration, 40s) linear infinite;
+  animation: none;
   transform: translate3d(0, 0, 0);
   will-change: transform;
 }
