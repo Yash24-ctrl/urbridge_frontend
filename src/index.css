@@ -2794,7 +2794,7 @@ img {
 /* Clean, professional UrBridgeAI marketing page */
 .urbridge-landing {
   min-height: 100vh;
-  padding: 24px clamp(16px, 5vw, 72px) 72px;
+  padding: 20px clamp(16px, 4vw, 54px) 52px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(239, 245, 255, 0.92)),
     radial-gradient(circle at top left, rgba(36, 75, 233, 0.12), transparent 34%),
@@ -2807,14 +2807,14 @@ img {
 .urbridge-section,
 .urbridge-info-section,
 .urbridge-final-cta {
-  max-width: 1180px;
+  max-width: 1320px;
   margin-right: auto;
   margin-left: auto;
 }
 
 .urbridge-nav {
-  position: static;
-  z-index: 1;
+  position: relative;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2825,6 +2825,7 @@ img {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(14px);
+  overflow: visible;
 }
 
 .urbridge-brand {
@@ -2862,6 +2863,89 @@ img {
 }
 
 .urbridge-nav-links a:hover {
+  color: #0b3d91;
+}
+
+.urbridge-counselling-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.urbridge-counselling-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.urbridge-counselling-trigger:hover,
+.urbridge-counselling-trigger[aria-expanded="true"] {
+  color: #0b3d91;
+}
+
+.urbridge-counselling-chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.urbridge-counselling-dropdown {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 50%;
+  z-index: 1000;
+  display: grid;
+  min-width: 245px;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 54px rgba(15, 23, 42, 0.18);
+  transform: translateX(-50%);
+}
+
+.urbridge-counselling-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  border-left: 1px solid rgba(148, 163, 184, 0.24);
+  background: #ffffff;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.urbridge-counselling-option {
+  width: 100%;
+  padding: 13px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 850;
+  text-align: left;
+  cursor: pointer;
+}
+
+.urbridge-counselling-option:hover {
+  background: #eef4ff;
   color: #0b3d91;
 }
 
@@ -2919,15 +3003,15 @@ img {
 
 .urbridge-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.85fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.82fr);
   align-items: center;
-  gap: clamp(32px, 6vw, 76px);
-  padding: clamp(34px, 5vw, 58px) 0 36px;
+  gap: clamp(26px, 4vw, 56px);
+  padding: clamp(24px, 4vw, 42px) 0 20px;
 }
 
 .urbridge-hero-copy {
   display: grid;
-  gap: 20px;
+  gap: 16px;
 }
 
 .urbridge-kicker {
@@ -2978,6 +3062,37 @@ img {
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 4px;
+}
+
+.urbridge-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.urbridge-hero-stat {
+  display: grid;
+  gap: 6px;
+  min-height: 96px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.urbridge-hero-stat strong {
+  color: #0b3d91;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.urbridge-hero-stat span {
+  color: #526174;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .urbridge-hero-panel {
@@ -3078,41 +3193,88 @@ img {
   stroke-width: 1;
 }
 
+.urbridge-trend-axis {
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+}
+
 .urbridge-trend-area {
   fill: url("#skillTrendGradient");
+  opacity: 0.72;
+}
+
+.urbridge-trend-benchmark,
+.urbridge-trend-focus {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.urbridge-trend-benchmark {
+  stroke: #16a34a;
+  stroke-width: 3;
+  opacity: 0.9;
+}
+
+.urbridge-trend-focus {
+  stroke: #f97316;
+  stroke-width: 3;
+  opacity: 0.86;
 }
 
 .urbridge-trend-line {
   fill: none;
-  stroke: #0b3d91;
+  stroke: url("#skillTrendLineGradient");
   stroke-linecap: round;
-  stroke-width: 5;
+  stroke-linejoin: round;
+  stroke-width: 4;
 }
 
 .urbridge-trend-point {
   fill: #ffffff;
-  stroke: #4f7cff;
-  stroke-width: 4;
+  stroke: #0b3d91;
+  stroke-width: 3;
+}
+
+.urbridge-trend-month {
+  fill: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+  text-anchor: middle;
 }
 
 .urbridge-trend-labels {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
 }
 
 .urbridge-trend-labels span {
-  display: grid;
-  gap: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: #64748b;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 800;
 }
 
-.urbridge-trend-labels strong {
-  color: #0f172a;
-  font-size: 0.96rem;
-  font-weight: 900;
+.urbridge-trend-legend {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+}
+
+.urbridge-trend-legend-main {
+  background: #0b3d91;
+}
+
+.urbridge-trend-legend-benchmark {
+  background: #16a34a;
+}
+
+.urbridge-trend-legend-focus {
+  background: #f97316;
 }
 
 .urbridge-hero-panel ul,
@@ -3169,14 +3331,14 @@ img {
 }
 
 .urbridge-section {
-  padding: clamp(54px, 8vw, 88px) 0 0;
+  padding: clamp(38px, 5vw, 62px) 0 0;
 }
 
 .urbridge-section-heading {
   display: grid;
   max-width: 760px;
-  gap: 14px;
-  margin-bottom: 28px;
+  gap: 12px;
+  margin-bottom: 22px;
 }
 
 .urbridge-section-heading h2,
@@ -3208,8 +3370,8 @@ img {
 .urbridge-feature-card {
   display: grid;
   gap: 16px;
-  min-height: 250px;
-  padding: 26px;
+  min-height: 220px;
+  padding: 24px;
   border-radius: 24px;
 }
 
@@ -3237,6 +3399,10 @@ img {
   scroll-margin-top: 24px;
 }
 
+.urbridge-reviews-section {
+  overflow: hidden;
+}
+
 .urbridge-step-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3247,8 +3413,8 @@ img {
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  min-height: 174px;
-  padding: 24px;
+  min-height: 150px;
+  padding: 22px;
   border-radius: 22px;
 }
 
@@ -3269,17 +3435,142 @@ img {
   gap: 8px;
 }
 
+.urbridge-review-loop {
+  position: relative;
+  overflow: hidden;
+  margin-top: 22px;
+  padding: 6px 0 10px;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.urbridge-review-track {
+  display: flex;
+  width: max-content;
+  gap: 14px;
+  animation: urbridgeReviewLoop 32s linear infinite;
+}
+
+.urbridge-review-card {
+  display: grid;
+  flex: 0 0 292px;
+  min-height: 206px;
+  align-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.urbridge-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.urbridge-review-top span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9f2ff;
+  color: #0b3d91;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.urbridge-review-top strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0b3d91;
+  font-weight: 900;
+}
+
+.urbridge-review-top strong::before {
+  content: "★";
+  color: #f59e0b;
+}
+
+.urbridge-review-card p {
+  margin: 0;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.urbridge-review-card h3 {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 0.94rem;
+  font-weight: 900;
+}
+
+.urbridge-review-card small {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+@keyframes urbridgeReviewLoop {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 9px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .urbridge-review-track {
+    animation: none;
+  }
+}
+
 .urbridge-info-section {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
   align-items: center;
-  gap: clamp(26px, 5vw, 70px);
-  padding: clamp(60px, 8vw, 92px) 0 0;
+  gap: clamp(24px, 4vw, 56px);
+  padding: clamp(42px, 5vw, 66px) 0 0;
 }
 
 .urbridge-info-section > div:first-child {
   display: grid;
   gap: 16px;
+}
+
+.urbridge-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  max-width: 1320px;
+  margin: clamp(30px, 4vw, 46px) auto 0;
+  padding: 22px 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.32);
+  text-align: left;
+}
+
+.urbridge-footer p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.urbridge-footer a {
+  color: #0b3d91;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.urbridge-footer a:hover {
+  text-decoration: underline;
 }
 
 .urbridge-benefit-card {
@@ -3324,6 +3615,10 @@ img {
   .urbridge-step-grid {
     grid-template-columns: 1fr;
   }
+
+  .urbridge-hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 560px) {
@@ -3352,27 +3647,54 @@ img {
     display: grid;
     width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
   }
 
-  .urbridge-nav-links a[href^="#"] {
-    display: none;
+  .urbridge-counselling-menu {
+    width: 100%;
+  }
+
+  .urbridge-counselling-trigger {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 8px;
+    border: 1px solid #d9e4f2;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #334155;
+    font-size: clamp(0.76rem, 3.2vw, 0.88rem);
+    white-space: nowrap;
+  }
+
+  .urbridge-counselling-dropdown {
+    right: 0;
+    left: 0;
+    min-width: 100%;
+    transform: none;
+  }
+
+  .urbridge-counselling-dropdown::before {
+    left: 50%;
   }
 
   .urbridge-nav-links a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
+    min-height: 40px;
+    padding: 0 8px;
     border: 1px solid #d9e4f2;
     border-radius: 999px;
     background: #ffffff;
-    font-size: 0.92rem;
+    font-size: clamp(0.76rem, 3.2vw, 0.88rem);
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .urbridge-nav-links .urbridge-nav-button {
-    min-height: 42px;
-    padding: 0 16px;
+    min-height: 40px;
+    padding: 0 12px;
     border-color: #0b3d91;
     background: #0b3d91;
     color: #ffffff !important;
@@ -3415,13 +3737,44 @@ img {
     width: 100%;
   }
 
+  .urbridge-hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .urbridge-hero-stat {
+    min-height: auto;
+  }
+
   .urbridge-feature-card,
   .urbridge-step-card,
+  .urbridge-review-card,
   .urbridge-benefit-card,
   .urbridge-final-cta,
   .urbridge-hero-panel {
     padding: 18px;
     border-radius: 22px;
+  }
+
+  .urbridge-review-loop {
+    margin-top: 20px;
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+
+  .urbridge-review-track {
+    gap: 14px;
+    animation-duration: 38s;
+  }
+
+  .urbridge-review-card {
+    flex-basis: min(78vw, 292px);
+    min-height: 206px;
+  }
+
+  .urbridge-footer {
+    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
   }
 
   .urbridge-hero-panel {
@@ -3479,16 +3832,11 @@ img {
   }
 
   .urbridge-trend-labels {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
   }
 
   .urbridge-trend-labels span {
-    font-size: 0.66rem;
-  }
-
-  .urbridge-trend-labels strong {
-    font-size: 0.82rem;
+    font-size: 0.64rem;
   }
 
   .urbridge-section {
@@ -3506,5 +3854,11 @@ img {
 
   .urbridge-info-section {
     padding-top: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .urbridge-nav-links {
+    grid-template-columns: 1fr;
   }
 }

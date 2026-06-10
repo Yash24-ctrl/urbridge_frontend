@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/auth-context";
 import logo from "../assets/urbridge-logo.jpg";
 
 const productHighlights = [
@@ -9,14 +11,38 @@ const productHighlights = [
 ];
 
 const skillTrendPoints = [
-  { label: "Current", value: 42, x: 28, y: 106 },
-  { label: "Focus", value: 58, x: 112, y: 82 },
-  { label: "Improve", value: 72, x: 196, y: 58 },
-  { label: "Target", value: 86, x: 284, y: 34 },
+  { label: "Jan", value: 42, x: 28, y: 106 },
+  { label: "Feb", value: 54, x: 70, y: 88 },
+  { label: "Mar", value: 49, x: 112, y: 96 },
+  { label: "Apr", value: 68, x: 154, y: 62 },
+  { label: "May", value: 58, x: 196, y: 80 },
+  { label: "Jun", value: 78, x: 238, y: 44 },
+  { label: "Jul", value: 86, x: 284, y: 34 },
 ];
 
 const skillTrendPath =
-  "M28 106 C70 96 78 88 112 82 C154 72 158 62 196 58 C236 52 250 38 284 34";
+  "M28 106 L70 88 L112 96 L154 62 L196 80 L238 44 L284 34";
+
+const skillTrendBenchmarkPath =
+  "M28 78 L70 102 L112 84 L154 92 L196 72 L238 58 L284 70";
+
+const skillTrendFocusPath =
+  "M28 118 L70 110 L112 104 L154 88 L196 82 L238 60 L284 48";
+
+const platformStats = [
+  {
+    value: "3-in-1",
+    label: "Resume analysis, interview prep, and counselling",
+  },
+  {
+    value: "ATS",
+    label: "Keyword guidance for better role matching",
+  },
+  {
+    value: "AI + Expert",
+    label: "Clear suggestions with counselling support",
+  },
+];
 
 const features = [
   {
@@ -52,6 +78,39 @@ const steps = [
   },
 ];
 
+const reviews = [
+  {
+    name: "Yash Kansara",
+    role: "Data Scientist",
+    text: "UrBridgeAI gave me clear resume suggestions and helped me present my data science projects with better impact.",
+    rating: "5.0",
+  },
+  {
+    name: "Heli Bhavsar",
+    role: "Website Developer",
+    text: "The platform made it easy to understand weak areas in my resume and improve my developer profile.",
+    rating: "4.9",
+  },
+  {
+    name: "Hetvi Kateliya",
+    role: "Designing",
+    text: "I liked how the feedback explained what to improve in simple words without making the process confusing.",
+    rating: "4.8",
+  },
+  {
+    name: "Devansh Kayasth",
+    role: "Full Stack Developer",
+    text: "UrBridgeAI helped me organize my technical skills, projects, and role keywords in a more professional way.",
+    rating: "5.0",
+  },
+  {
+    name: "Dhruvi Pande",
+    role: "Digital Marketing",
+    text: "The resume report was practical and helped me highlight marketing skills, tools, and achievements better.",
+    rating: "4.9",
+  },
+];
+
 const benefits = [
   "Simple reports that users can read quickly",
   "Guidance focused on real resume improvement",
@@ -60,6 +119,35 @@ const benefits = [
 ];
 
 export default function MarketingLanding() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [isCounsellingMenuOpen, setIsCounsellingMenuOpen] = useState(false);
+
+  const handleCounsellingTrigger = () => {
+    setIsCounsellingMenuOpen((isOpen) => !isOpen);
+  };
+
+  const handleCallCounsellor = () => {
+    if (!user) {
+      sessionStorage.setItem("postAuthRedirect", "/counselling");
+      navigate("/login", { state: { redirectTo: "/counselling" } });
+      return;
+    }
+
+    setIsCounsellingMenuOpen(false);
+    navigate("/counselling");
+  };
+
+  const handleYourSessions = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    setIsCounsellingMenuOpen(false);
+    navigate("/dashboard", { state: { openSessions: true } });
+  };
+
   return (
     <main className="urbridge-landing">
       <header className="urbridge-nav">
@@ -68,6 +156,38 @@ export default function MarketingLanding() {
         </Link>
         <nav className="urbridge-nav-links" aria-label="Landing page navigation">
           <a href="#features">Features</a>
+          <div className="urbridge-counselling-menu">
+            <button
+              type="button"
+              className="urbridge-counselling-trigger"
+              aria-haspopup="menu"
+              aria-expanded={isCounsellingMenuOpen}
+              onClick={handleCounsellingTrigger}
+            >
+              <span>AI Counselling</span>
+              <span className="urbridge-counselling-chevron" aria-hidden="true" />
+            </button>
+            {isCounsellingMenuOpen && (
+              <div className="urbridge-counselling-dropdown" role="menu">
+                <button
+                  type="button"
+                  className="urbridge-counselling-option"
+                  role="menuitem"
+                  onClick={handleCallCounsellor}
+                >
+                  Call with Counsellor
+                </button>
+                <button
+                  type="button"
+                  className="urbridge-counselling-option"
+                  role="menuitem"
+                  onClick={handleYourSessions}
+                >
+                  Your Sessions
+                </button>
+              </div>
+            )}
+          </div>
           <a href="#how-it-works">How it works</a>
           <a href="#about">About</a>
           <Link to="/login">Sign in</Link>
@@ -93,6 +213,14 @@ export default function MarketingLanding() {
             <Link className="urbridge-secondary-button" to="/login">
               Login
             </Link>
+          </div>
+          <div className="urbridge-hero-stats" aria-label="UrBridgeAI platform highlights">
+            {platformStats.map((stat) => (
+              <div className="urbridge-hero-stat" key={stat.value}>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -120,30 +248,48 @@ export default function MarketingLanding() {
                     <stop offset="0%" stopColor="#4f7cff" stopOpacity="0.22" />
                     <stop offset="100%" stopColor="#4f7cff" stopOpacity="0" />
                   </linearGradient>
+                  <linearGradient id="skillTrendLineGradient" x1="28" x2="284" y1="106" y2="34">
+                    <stop offset="0%" stopColor="#0b3d91" />
+                    <stop offset="58%" stopColor="#2563eb" />
+                    <stop offset="100%" stopColor="#4f7cff" />
+                  </linearGradient>
                 </defs>
-                <line className="urbridge-trend-grid" x1="24" x2="296" y1="34" y2="34" />
-                <line className="urbridge-trend-grid" x1="24" x2="296" y1="82" y2="82" />
-                <line className="urbridge-trend-grid" x1="24" x2="296" y1="130" y2="130" />
-                <path className="urbridge-trend-area" d={`${skillTrendPath} L284 130 L28 130 Z`} />
+                <line className="urbridge-trend-grid" x1="24" x2="296" y1="38" y2="38" />
+                <line className="urbridge-trend-grid" x1="24" x2="296" y1="76" y2="76" />
+                <line className="urbridge-trend-grid" x1="24" x2="296" y1="114" y2="114" />
+                <line className="urbridge-trend-axis" x1="24" x2="296" y1="132" y2="132" />
+                <path className="urbridge-trend-area" d={`${skillTrendPath} L284 132 L28 132 Z`} />
+                <path className="urbridge-trend-benchmark" d={skillTrendBenchmarkPath} />
+                <path className="urbridge-trend-focus" d={skillTrendFocusPath} />
                 <path className="urbridge-trend-line" d={skillTrendPath} />
                 {skillTrendPoints.map((point) => (
-                  <circle
-                    className="urbridge-trend-point"
-                    cx={point.x}
-                    cy={point.y}
-                    key={point.label}
-                    r="5"
-                  />
+                  <g key={point.label}>
+                    <circle
+                      className="urbridge-trend-point"
+                      cx={point.x}
+                      cy={point.y}
+                      r="4"
+                    />
+                    <text className="urbridge-trend-month" x={point.x} y="146">
+                      {point.label}
+                    </text>
+                  </g>
                 ))}
               </svg>
             </div>
             <div className="urbridge-trend-labels">
-              {skillTrendPoints.map((point) => (
-                <span key={point.label}>
-                  {point.label}
-                  <strong>{point.value}%</strong>
-                </span>
-              ))}
+              <span>
+                <i className="urbridge-trend-legend urbridge-trend-legend-main" />
+                Skill growth
+              </span>
+              <span>
+                <i className="urbridge-trend-legend urbridge-trend-legend-benchmark" />
+                Benchmark
+              </span>
+              <span>
+                <i className="urbridge-trend-legend urbridge-trend-legend-focus" />
+                Target path
+              </span>
             </div>
           </div>
           <ul>
@@ -191,6 +337,51 @@ export default function MarketingLanding() {
         </div>
       </section>
 
+      <section className="urbridge-section urbridge-reviews-section" aria-label="User reviews">
+        <div className="urbridge-section-heading">
+          <span className="urbridge-kicker">User reviews</span>
+          <h2>What users say about UrBridgeAI.</h2>
+          <p>
+            Example feedback from students and job seekers who use the platform to
+            improve resumes, prepare better, and move with more clarity.
+          </p>
+        </div>
+        <div className="urbridge-review-loop">
+          <div className="urbridge-review-track">
+            {reviews.map((review) => (
+              <article className="urbridge-review-card" key={review.name}>
+                <div className="urbridge-review-top">
+                  <span>{review.name.split(" ").map((word) => word[0]).join("")}</span>
+                  <strong>{review.rating}</strong>
+                </div>
+                <p>{review.text}</p>
+                <div>
+                  <h3>{review.name}</h3>
+                  <small>{review.role}</small>
+                </div>
+              </article>
+            ))}
+            {reviews.map((review) => (
+              <article
+                aria-hidden="true"
+                className="urbridge-review-card"
+                key={`${review.name}-duplicate`}
+              >
+                <div className="urbridge-review-top">
+                  <span>{review.name.split(" ").map((word) => word[0]).join("")}</span>
+                  <strong>{review.rating}</strong>
+                </div>
+                <p>{review.text}</p>
+                <div>
+                  <h3>{review.name}</h3>
+                  <small>{review.role}</small>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="urbridge-info-section" id="about">
         <div>
           <span className="urbridge-kicker">Why UrBridgeAI</span>
@@ -211,6 +402,21 @@ export default function MarketingLanding() {
         </div>
       </section>
 
+      <footer className="urbridge-footer">
+        <p>
+          Copyright &copy; 2026{" "}
+          <a href="https://neuronet.in/" target="_blank" rel="noreferrer">
+            NeuronetSystems
+          </a>{" "}
+          Pvt Ltd All Rights Reserved.
+        </p>
+        <p>
+          Contact us{" "}
+          <a href="mailto:info@neuronet.in">
+            info@neuronet.in
+          </a>
+        </p>
+      </footer>
     </main>
   );
 }

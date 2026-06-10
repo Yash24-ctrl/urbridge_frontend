@@ -17,7 +17,14 @@ export default function AuthCallback() {
     }
 
     localStorage.setItem("user", JSON.stringify({ token: token }));
-    navigate("/dashboard", { replace: true });
+    const redirectTo = sessionStorage.getItem("postAuthRedirect");
+    sessionStorage.removeItem("postAuthRedirect");
+    navigate(
+      redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+        ? redirectTo
+        : "/dashboard",
+      { replace: true }
+    );
   }, [navigate, searchParams]);
 
   return (

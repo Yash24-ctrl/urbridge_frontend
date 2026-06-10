@@ -22,6 +22,20 @@ export default function Login() {
   const [googleButtonWidth, setGoogleButtonWidth] = useState(320);
 
   const passwordError = validateLoginPassword(password);
+  const getSafeRedirect = (value) =>
+    typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
+      ? value
+      : "";
+
+  const redirectTo =
+    getSafeRedirect(location.state?.redirectTo) ||
+    getSafeRedirect(sessionStorage.getItem("postAuthRedirect")) ||
+    "/dashboard";
+
+  const navigateAfterLogin = () => {
+    sessionStorage.removeItem("postAuthRedirect");
+    navigate(redirectTo, { replace: true });
+  };
 
   useEffect(() => {
     const updateWidth = () => {
@@ -52,7 +66,7 @@ export default function Login() {
 
       login(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      navigateAfterLogin();
     } catch (err) {
       console.error("GOOGLE LOGIN ERROR:", err);
       setError(
@@ -73,6 +87,7 @@ export default function Login() {
   const handleLinkedInLogin = () => {
     setError("");
     clearStoredUser();
+    sessionStorage.setItem("postAuthRedirect", redirectTo);
     window.location.href = "/api/user/linkedin";
   };
 
@@ -114,7 +129,7 @@ export default function Login() {
 
       login(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      navigateAfterLogin();
     } catch (err) {
       console.error("LOGIN ERROR:", err);
       setError(

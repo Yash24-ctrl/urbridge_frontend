@@ -1,5 +1,5 @@
-import { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import UploadCV from "./uploadCV";
 import ManualForm from "./ManualForm";
 import ScoreCard from "./ScoreCard";
@@ -43,6 +43,7 @@ async function getCounsellingHistory() {
 export default function DashboardPage() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [score, setScore] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [formData, setFormData] = useState(null);
@@ -101,6 +102,15 @@ export default function DashboardPage() {
       setSessionsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!location.state?.openSessions) {
+      return;
+    }
+
+    handleYourSessions();
+    navigate("/dashboard", { replace: true, state: {} });
+  }, [location.state?.openSessions]);
 
   const getSessionMeetLink = (session) =>
     session?.meetLink || session?.googleMeetLink || session?.google_meet_link || "";
