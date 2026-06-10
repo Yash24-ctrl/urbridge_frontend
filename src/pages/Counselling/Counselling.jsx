@@ -12,6 +12,7 @@ import {
 const DEFAULT_COUNSELLOR = normalizeCounsellorSelection();
 const DEFAULT_TIMEZONE = "Asia/Calcutta";
 const IST_OFFSET_MINUTES = 330;
+const COUNSELLING_TIME_SLOTS = ["10:00 AM", "12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"];
 
 function getErrorMessage(error, fallback) {
   return error?.response?.data?.message || error?.message || fallback;
@@ -23,7 +24,16 @@ function isRouteNotFound(error) {
 }
 
 async function requestCounsellingApi(method, path, configOrData, maybeConfig) {
-  const prefixes = ["/user/counseling", "/user/counselling", "/counseling", "/counselling"];
+  const prefixes = [
+    "/user/counseling",
+    "/user/counselling",
+    "/auth/counseling",
+    "/auth/counselling",
+    "/counseling",
+    "/counselling",
+    "/user",
+    "/auth",
+  ];
   let lastError = null;
 
   for (const prefix of prefixes) {
@@ -164,6 +174,32 @@ function parseTimeSlot(timeSlot) {
   return { hours, minutes };
 }
 
+function isSlotPassedForFallback(dateString, timeSlot) {
+  const parsedTime = parseTimeSlot(timeSlot);
+
+  if (!dateString || !parsedTime) {
+    return false;
+  }
+
+  const [year, month, day] = dateString.split("-").map(Number);
+  const slotStartUtc = Date.UTC(
+    year,
+    month - 1,
+    day,
+    parsedTime.hours,
+    parsedTime.minutes
+  ) - IST_OFFSET_MINUTES * 60 * 1000;
+
+  return slotStartUtc <= Date.now();
+}
+
+function buildFallbackSlots(dateString) {
+  return COUNSELLING_TIME_SLOTS.map((timeSlot) => ({
+    timeSlot,
+    status: isSlotPassedForFallback(dateString, timeSlot) ? "passed" : "available",
+  }));
+}
+
 function formatCalendarDate(date) {
   return date
     .toISOString()
@@ -287,6 +323,22 @@ export default function Counselling() {
         };
       });
     } catch (error) {
+      if (isRouteNotFound(error)) {
+        const fallbackSlots = buildFallbackSlots(date);
+        setSelectedSlots(fallbackSlots);
+        setFormData((currentForm) => {
+          const selectedSlotStillAvailable = fallbackSlots.some(
+            (slot) => slot.timeSlot === currentForm.timeSlot && slot.status === "available"
+          );
+
+          return {
+            ...currentForm,
+            timeSlot: selectedSlotStillAvailable ? currentForm.timeSlot : "",
+          };
+        });
+        return;
+      }
+
       setFormError(getErrorMessage(error, "Unable to load available slots"));
       setSelectedSlots([]);
     } finally {
@@ -321,6 +373,23 @@ export default function Counselling() {
         setSlotsLoading(false);
       }
     } catch (error) {
+      if (isRouteNotFound(error)) {
+        const fallbackDates = buildLocalDateOptions();
+        const fallbackDate = fallbackDates.some((dateOption) => dateOption.date === formData.date)
+          ? formData.date
+          : fallbackDates[0]?.date || "";
+
+        setSlotDates(fallbackDates);
+        setFormData((currentForm) => ({
+          ...currentForm,
+          date: fallbackDate,
+          timeSlot: "",
+        }));
+        setSelectedSlots(fallbackDate ? buildFallbackSlots(fallbackDate) : []);
+        setSlotsLoading(false);
+        return;
+      }
+
       setFormError(getErrorMessage(error, "Unable to load available dates"));
       const fallbackDates = buildLocalDateOptions();
       const fallbackDate = fallbackDates.some((dateOption) => dateOption.date === formData.date)
