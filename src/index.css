@@ -1252,7 +1252,7 @@ img {
 
 .dashboard-resume-history-card {
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) auto minmax(260px, 1.2fr);
+  grid-template-columns: minmax(190px, 1fr) auto auto;
   gap: 16px;
   align-items: center;
   padding: 18px;
@@ -1310,47 +1310,29 @@ img {
   font-weight: 700;
 }
 
-.dashboard-resume-history-details {
-  display: grid;
-  grid-template-columns: minmax(110px, 0.65fr) minmax(160px, 1.35fr);
-  gap: 12px;
-  min-width: 0;
-}
-
-.dashboard-resume-history-details div {
-  display: grid;
-  gap: 5px;
-  min-width: 0;
-  padding: 12px;
-  border-radius: 14px;
-  background: #f8fbff;
-}
-
-.dashboard-resume-history-details span {
-  color: #64748b;
-  font-size: 0.72rem;
+.dashboard-resume-history-download {
+  justify-self: end;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #e9f0ff;
+  color: #0d1970;
+  box-shadow: 0 12px 24px rgba(14, 29, 92, 0.14);
+  cursor: pointer;
+  font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  line-height: 1;
   text-transform: uppercase;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
 }
 
-.dashboard-resume-history-details strong {
-  color: #111827;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.dashboard-resume-history-suggestion {
-  grid-column: 1 / -1;
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #f8fafc;
-  color: #475569;
-  font-size: 0.9rem;
-  font-weight: 650;
-  line-height: 1.55;
+.dashboard-resume-history-download:hover,
+.dashboard-resume-history-download:focus-visible {
+  background: #dbe7ff;
+  box-shadow: 0 16px 30px rgba(14, 29, 92, 0.2);
+  transform: translateY(-1px);
 }
 
 .dashboard-report-cta {
@@ -1709,9 +1691,10 @@ img {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .dashboard-resume-history-details,
-  .dashboard-resume-history-suggestion {
+  .dashboard-resume-history-download {
     grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
   }
 
   .dashboard-score-meter {
@@ -1769,8 +1752,7 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .dashboard-resume-history-card,
-  .dashboard-resume-history-details {
+  .dashboard-resume-history-card {
     grid-template-columns: 1fr;
   }
 

@@ -227,6 +227,37 @@ export default function DashboardPage() {
     });
   };
 
+  const handleDownloadHistoryReport = (historyItem) => {
+    const snapshot = historyItem?.profileSnapshot || {};
+    const historyFormData = {
+      name: snapshot.name || user?.username || "Candidate",
+      desiredJobRoles: snapshot.desiredJobRoles || "",
+      desiredJobRole: snapshot.desiredJobRoles || "",
+      education: snapshot.education || "",
+      experience: Number(snapshot.experience) || 0,
+      skills: Array.isArray(snapshot.skills) ? snapshot.skills : [],
+      certifications: Array.isArray(snapshot.certifications) ? snapshot.certifications : [],
+      previousJobTitle: snapshot.previousJobTitle || "",
+    };
+    const historyProfileType =
+      historyItem?.profileType || (Number(historyFormData.experience) >= 1 ? "experienced" : "fresher");
+
+    downloadReport({
+      score: historyItem?.score,
+      suggestions: Array.isArray(historyItem?.suggestions) ? historyItem.suggestions : [],
+      formData: historyFormData,
+      profileType: historyProfileType,
+      scoreBreakdown: historyItem?.scoreBreakdown || null,
+      strongPoints: Array.isArray(historyItem?.strongPoints) ? historyItem.strongPoints : [],
+      diagnostics: {
+        ...(historyItem?.diagnostics || {}),
+        candidateName: historyFormData.name,
+        role: historyFormData.desiredJobRoles || historyFormData.previousJobTitle,
+        profileType: historyProfileType,
+      },
+    });
+  };
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-shell">
@@ -494,12 +525,6 @@ export default function DashboardPage() {
             ) : (
               <div className="dashboard-resume-history-list">
                 {resumeHistory.map((historyItem) => {
-                  const snapshot = historyItem.profileSnapshot || {};
-                  const skills = Array.isArray(snapshot.skills) ? snapshot.skills.filter(Boolean) : [];
-                  const suggestionsList = Array.isArray(historyItem.suggestions)
-                    ? historyItem.suggestions.filter(Boolean)
-                    : [];
-
                   return (
                     <article className="dashboard-resume-history-card" key={historyItem._id || historyItem.id}>
                       <div className="dashboard-resume-history-main">
@@ -514,19 +539,13 @@ export default function DashboardPage() {
                         <strong>{typeof historyItem.score === "number" ? historyItem.score : "—"}</strong>
                         <em>/100</em>
                       </div>
-                      <div className="dashboard-resume-history-details">
-                        <div>
-                          <span>Experience</span>
-                          <strong>{snapshot.experience || 0} Years</strong>
-                        </div>
-                        <div>
-                          <span>Top Skills</span>
-                          <strong>{skills.length > 0 ? skills.slice(0, 4).join(", ") : "Not available"}</strong>
-                        </div>
-                      </div>
-                      <p className="dashboard-resume-history-suggestion">
-                        {suggestionsList[0] || "No suggestion stored for this analysis."}
-                      </p>
+                      <button
+                        type="button"
+                        className="dashboard-resume-history-download"
+                        onClick={() => handleDownloadHistoryReport(historyItem)}
+                      >
+                        Download Full Report
+                      </button>
                     </article>
                   );
                 })}
