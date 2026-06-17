@@ -513,6 +513,7 @@ export default function Counselling() {
             counsellorName: formData.counsellorName,
             counsellorEmail: formData.counsellorEmail,
             counsellorTitle: selectedCounsellor.title,
+            meetLinkPending: response.data?.meetLinkPending || !response.data.booking.meetLink,
           }
           : null
       );
@@ -524,7 +525,14 @@ export default function Counselling() {
       }));
       await loadDateOptions();
     } catch (error) {
-      setFormError(getErrorMessage(error, "Unable to book counselling session. Please try again."));
+      const rawMessage = getErrorMessage(error, "Unable to book counselling session. Please try again.");
+      // Show a friendly message instead of technical OAuth/calendar errors
+      const isTechnicalError = /oauth|calendar|google|meet|client secret|invalid/i.test(rawMessage);
+      setFormError(
+        isTechnicalError
+          ? "Unable to book session right now. Please try again in a moment."
+          : rawMessage
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -653,25 +661,35 @@ export default function Counselling() {
                 >
                   Add to Google Calendar
                 </a>
-                <a
-                  href={getBookingMeetLink(confirmation)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={styles.primaryAction}
-                >
-                  Join Meeting
-                </a>
+                {getBookingMeetLink(confirmation) ? (
+                  <a
+                    href={getBookingMeetLink(confirmation)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={styles.primaryAction}
+                  >
+                    Join Meeting
+                  </a>
+                ) : null}
               </div>
 
-              <button
-                type="button"
-                className={styles.copyBox}
-                onClick={() => handleCopy(confirmation.meetingCode, "confirmation")}
-              >
-                <span>Meeting code</span>
-                <strong>{confirmation.meetingCode}</strong>
-                <em>{copiedCode === "confirmation" ? "Copied" : "Click to copy"}</em>
-              </button>
+              {confirmation.meetLinkPending && (
+                <div className={styles.reminderBox}>
+                  <p>Your meeting link will be shared via email shortly.</p>
+                </div>
+              )}
+
+              {confirmation.meetingCode ? (
+                <button
+                  type="button"
+                  className={styles.copyBox}
+                  onClick={() => handleCopy(confirmation.meetingCode, "confirmation")}
+                >
+                  <span>Meeting code</span>
+                  <strong>{confirmation.meetingCode}</strong>
+                  <em>{copiedCode === "confirmation" ? "Copied" : "Click to copy"}</em>
+                </button>
+              ) : null}
             </section>
           ) : (
             <form className={styles.bookingForm} onSubmit={handleSubmit}>
