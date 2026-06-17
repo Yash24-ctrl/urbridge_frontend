@@ -69,10 +69,12 @@ export default function Login() {
       navigateAfterLogin();
     } catch (err) {
       console.error("GOOGLE LOGIN ERROR:", err);
+      const detail = err.response?.data?.detail;
+      const message = err.response?.data?.message;
       setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Google login failed"
+        detail
+          ? `${message}: ${detail}`
+          : message || err.message || "Google login failed"
       );
     } finally {
       setLoading(false);
