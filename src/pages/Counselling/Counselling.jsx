@@ -222,9 +222,9 @@ function buildGoogleCalendarUrl(booking, counsellor = DEFAULT_COUNSELLOR) {
   const endUtc = new Date(startUtc.getTime() + 60 * 60 * 1000);
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: `Counseling Session with ${counsellor.name}`,
+    text: "AI Counselling Session",
     dates: `${formatCalendarDate(startUtc)}/${formatCalendarDate(endUtc)}`,
-    details: `Counsellor: ${counsellor.name}, ${counsellor.title}\nJoin Meeting: ${booking.meetLink}\nMeeting code: ${booking.meetingCode}`,
+    details: `Session: AI Counselling\nJoin Meeting: ${booking.meetLink}\nMeeting code: ${booking.meetingCode}`,
     location: booking.meetLink || "Google Meet",
   });
 
@@ -526,13 +526,9 @@ export default function Counselling() {
       await loadDateOptions();
     } catch (error) {
       const rawMessage = getErrorMessage(error, "Unable to book counselling session. Please try again.");
-      // Show a friendly message instead of technical OAuth/calendar errors
-      const isTechnicalError = /oauth|calendar|google|meet|client secret|invalid/i.test(rawMessage);
-      setFormError(
-        isTechnicalError
-          ? "Unable to book session right now. Please try again in a moment."
-          : rawMessage
-      );
+      const detail = error?.response?.data?.detail || '';
+      // Temporarily show full error detail for debugging
+      setFormError(detail ? `${rawMessage} — ${detail}` : rawMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -563,12 +559,12 @@ export default function Counselling() {
           </div>
 
           <section className={styles.profileCard} aria-label="Counsellor profile">
-            <div className={styles.avatar}>{selectedCounsellor.initials}</div>
+            <div className={styles.avatar}>AI</div>
             <div>
-              <h2>{selectedCounsellor.name}</h2>
-              <p className={styles.profileTitle}>{selectedCounsellor.title}</p>
+              <h2>AI Career Counsellor</h2>
+              <p className={styles.profileTitle}>Career Guidance Specialist</p>
               <p className={styles.profileBio}>
-                {selectedCounsellor.experience} helping professionals find their right career path using AI
+                Get structured career guidance and resume support through an AI-guided counselling session
               </p>
             </div>
           </section>
@@ -593,7 +589,7 @@ export default function Counselling() {
             <ol>
               <li>Book your preferred slot</li>
               <li>Get instant Meet link on email</li>
-              <li>Join session with {selectedCounsellor.name}</li>
+              <li>Join your AI-guided counselling session</li>
               <li>Get personalized career guidance</li>
             </ol>
           </section>
@@ -635,8 +631,8 @@ export default function Counselling() {
                   <strong>{confirmation.timeSlot}</strong>
                 </div>
                 <div>
-                  <span>Counsellor</span>
-                  <strong>{confirmation.counsellorName || selectedCounsellor.name}, {confirmation.counsellorTitle || selectedCounsellor.title}</strong>
+                  <span>Session</span>
+                  <strong>AI Career Counselling</strong>
                 </div>
               </div>
 
@@ -723,15 +719,7 @@ export default function Counselling() {
                   />
                 </label>
 
-                <label className={styles.field}>
-                  <span>Selected counsellor</span>
-                  <input
-                    type="text"
-                    value={formData.counsellorName}
-                    readOnly
-                  />
-                </label>
-
+                <input type="hidden" value={formData.counsellorName} readOnly />
                 <input type="hidden" value={formData.counsellorEmail} readOnly />
 
                 <label className={styles.field}>
@@ -863,7 +851,7 @@ export default function Counselling() {
                 <textarea
                   value={formData.helpWith}
                   onChange={(event) => updateFormField("helpWith", event.target.value)}
-                  placeholder={`Tell ${selectedCounsellor.name} what you want guidance on (optional)`}
+                  placeholder="Tell us what you want guidance on (optional)"
                 />
               </label>
 

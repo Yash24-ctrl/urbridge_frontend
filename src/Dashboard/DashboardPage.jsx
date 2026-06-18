@@ -315,14 +315,6 @@ export default function DashboardPage() {
                       type="button"
                       className="dashboard-counselling-option"
                       role="menuitem"
-                      onClick={() => setIsCounsellingMenuOpen(false)}
-                    >
-                      Chat With Counsellor
-                    </button>
-                    <button
-                      type="button"
-                      className="dashboard-counselling-option"
-                      role="menuitem"
                       onClick={handleCallCounsellor}
                     >
                       Call with Counsellor
@@ -599,8 +591,8 @@ export default function DashboardPage() {
                         <span className={`dashboard-session-status ${isCompleted ? "is-completed" : "is-remaining"}`}>
                           {isCompleted ? "Completed" : "Remaining"}
                         </span>
-                        <h3>{session.counsellorName || "AI Career Counsellor"}</h3>
-                        <p>{session.counsellorTitle || "AI Career Counsellor"}</p>
+                        <h3>AI Career Counselling</h3>
+                        <p>Career Guidance Session</p>
                       </div>
                       <div className="dashboard-session-details">
                         <div>
