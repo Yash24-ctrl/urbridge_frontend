@@ -306,7 +306,7 @@ export default function DashboardPage() {
                   aria-expanded={isCounsellingMenuOpen}
                   onClick={() => setIsCounsellingMenuOpen((isOpen) => !isOpen)}
                 >
-                  <span>AI Counselling</span>
+                  <span>Career Guidance</span>
                   <span className="dashboard-counselling-chevron" aria-hidden="true" />
                 </button>
                 {isCounsellingMenuOpen && (

@@ -545,7 +545,7 @@ export default function Counselling() {
         <nav className={styles.navLinks} aria-label="Primary navigation">
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/counselling" className={styles.activeNav}>
-            AI Counselling
+            Career Guidance
           </Link>
         </nav>
 
@@ -555,13 +555,13 @@ export default function Counselling() {
           </Link>
           <div>
             <span className={styles.sidebarLabel}>AI Counselling</span>
-            <h1>Book your counseling session</h1>
+            <h1>Book Your Career Guidance Session</h1>
           </div>
 
           <section className={styles.profileCard} aria-label="Counsellor profile">
             <div className={styles.avatar}>AI</div>
             <div>
-              <h2>AI Career Counsellor</h2>
+              <h2>Career Counsellor</h2>
               <p className={styles.profileTitle}>Career Guidance Specialist</p>
               <p className={styles.profileBio}>
                 Get structured career guidance and resume support through an AI-guided counselling session
@@ -572,7 +572,7 @@ export default function Counselling() {
           <dl className={styles.sessionInfo}>
             <div>
               <dt>Format</dt>
-              <dd>Google Meet (60 mins)</dd>
+              <dd>Google Meet (30 mins)</dd>
             </div>
             <div>
               <dt>Response</dt>
@@ -581,6 +581,8 @@ export default function Counselling() {
             <div>
               <dt>Language</dt>
               <dd>English</dd>
+              <dd>Hindi</dd>
+              <dd>Gujarati</dd>
             </div>
           </dl>
 
@@ -690,7 +692,7 @@ export default function Counselling() {
           ) : (
             <form className={styles.bookingForm} onSubmit={handleSubmit}>
               <div className={styles.formHeader}>
-                <span>Book AI-Guided Counselling</span>
+                <span>Book Your Career Guidance</span>
                 <h2>Choose your session slot</h2>
               </div>
 

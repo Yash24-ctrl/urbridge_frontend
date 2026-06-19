@@ -235,7 +235,7 @@ export default function MarketingLanding() {
               aria-expanded={isCounsellingMenuOpen}
               onClick={handleCounsellingTrigger}
             >
-              <span>AI Counselling</span>
+              <span>Career Guidance</span>
               <span className="urbridge-counselling-chevron" aria-hidden="true" />
             </button>
             {isCounsellingMenuOpen && (
