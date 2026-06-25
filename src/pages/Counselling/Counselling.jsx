@@ -12,6 +12,7 @@ import {
 const DEFAULT_COUNSELLOR = normalizeCounsellorSelection();
 const DEFAULT_TIMEZONE = "Asia/Calcutta";
 const IST_OFFSET_MINUTES = 330;
+const CALENDAR_WINDOW_DAYS = 31;
 const COUNSELLING_TIME_SLOTS = ["10:00 AM", "12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"];
 
 function getErrorMessage(error, fallback) {
@@ -116,21 +117,101 @@ function addDaysToDateString(dateString, days) {
   ].join("-");
 }
 
+function getDatePartsFromString(dateString) {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return { year, month, day };
+}
+
+function formatWeekday(dateString) {
+  const { year, month, day } = getDatePartsFromString(dateString);
+
+  return new Intl.DateTimeFormat("en-IN", {
+    weekday: "short",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+function getCalendarStartOffset(dateString) {
+  if (!dateString) {
+    return 0;
+  }
+
+  const { year, month, day } = getDatePartsFromString(dateString);
+  const dayIndex = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+
+  return (dayIndex + 6) % 7;
+}
+
+function formatCalendarMonthTitle(dateString) {
+  if (!dateString) {
+    return "Select date";
+  }
+
+  const { year, month, day } = getDatePartsFromString(dateString);
+
+  return new Intl.DateTimeFormat("en-IN", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+function buildCalendarMonthDays(dateString) {
+  if (!dateString) {
+    return [];
+  }
+
+  const { year, month } = getDatePartsFromString(dateString);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const firstDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const leadingBlanks = Array.from({ length: getCalendarStartOffset(firstDate) }, () => null);
+  const monthDays = Array.from({ length: daysInMonth }, (_, index) => {
+    const day = index + 1;
+
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  });
+
+  return [...leadingBlanks, ...monthDays];
+}
+
+function addMonthsToDateString(dateString, monthsToAdd) {
+  if (!dateString) {
+    return "";
+  }
+
+  const { year, month } = getDatePartsFromString(dateString);
+  const nextDate = new Date(Date.UTC(year, month - 1 + monthsToAdd, 1));
+
+  return [
+    nextDate.getUTCFullYear(),
+    String(nextDate.getUTCMonth() + 1).padStart(2, "0"),
+    "01",
+  ].join("-");
+}
+
 function buildLocalDateOptions() {
   const parts = getTimeZoneDateParts();
   const today = `${parts.year}-${parts.month}-${parts.day}`;
-  const tomorrow = addDaysToDateString(today, 1);
-  const dayAfterTomorrow = addDaysToDateString(today, 2);
 
-  return [
-    { label: "Today", date: today, displayDate: formatDateOption(today) },
-    { label: "Tomorrow", date: tomorrow, displayDate: formatDateOption(tomorrow) },
-    {
-      label: "Day After Tomorrow",
-      date: dayAfterTomorrow,
-      displayDate: formatDateOption(dayAfterTomorrow),
-    },
-  ];
+  return Array.from({ length: CALENDAR_WINDOW_DAYS }, (_, index) => {
+    const date = addDaysToDateString(today, index);
+    return buildCalendarDateOption(date, today);
+  });
+}
+
+function buildCalendarDateOption(date, todayDate) {
+  const parts = getTimeZoneDateParts();
+  const today = todayDate || `${parts.year}-${parts.month}-${parts.day}`;
+  const tomorrow = addDaysToDateString(today, 1);
+  const { day } = getDatePartsFromString(date);
+
+  return {
+    label: date === today ? "Today" : date === tomorrow ? "Tomorrow" : formatWeekday(date),
+    date,
+    displayDate: formatDateOption(date),
+    day,
+    weekday: formatWeekday(date),
+  };
 }
 
 function createInitialSchedulerState() {
@@ -263,6 +344,7 @@ export default function Counselling() {
   const [slotDates, setSlotDates] = useState(initialSchedulerState.dateOptions);
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [dateMenuOpen, setDateMenuOpen] = useState(false);
+  const [visibleCalendarDate, setVisibleCalendarDate] = useState(initialSchedulerState.formData.date);
   const [slotsLoading, setSlotsLoading] = useState(true);
   const [formError, setFormError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
@@ -310,7 +392,7 @@ export default function Counselling() {
       const response = await requestCounsellingApi("get", "/slots", {
         params: { date: formatDateOption(date) },
       });
-      const slots = response.data?.slots || [];
+      const slots = response.data?.slots?.length ? response.data.slots : buildFallbackSlots(date);
       setSelectedSlots(slots);
       setFormData((currentForm) => {
         const selectedSlotStillAvailable = slots.some(
@@ -351,10 +433,8 @@ export default function Counselling() {
     setFormError("");
 
     try {
-      const response = await requestCounsellingApi("get", "/slots");
-      const dates = response.data?.dates?.length
-        ? response.data.dates
-        : buildLocalDateOptions();
+      await requestCounsellingApi("get", "/slots");
+      const dates = buildLocalDateOptions();
       const initialDate = dates[0]?.date || "";
       const dateToLoad = dates.some((dateOption) => dateOption.date === formData.date)
         ? formData.date
@@ -421,9 +501,26 @@ export default function Counselling() {
     return () => window.clearTimeout(timer);
   }, [toastMessage]);
 
-  const selectedDateOption = useMemo(
-    () => slotDates.find((dateOption) => dateOption.date === formData.date) || slotDates[0],
-    [formData.date, slotDates]
+  const selectedDateOption = useMemo(() => {
+    const existingDateOption = slotDates.find((dateOption) => dateOption.date === formData.date);
+
+    if (existingDateOption) {
+      return existingDateOption;
+    }
+
+    return formData.date ? buildCalendarDateOption(formData.date, slotDates[0]?.date) : slotDates[0];
+  }, [formData.date, slotDates]);
+  const dateOptionMap = useMemo(
+    () => new Map(slotDates.map((dateOption) => [dateOption.date, dateOption])),
+    [slotDates]
+  );
+  const calendarMonthDays = useMemo(
+    () => buildCalendarMonthDays(visibleCalendarDate || selectedDateOption?.date),
+    [visibleCalendarDate, selectedDateOption]
+  );
+  const calendarTitle = useMemo(
+    () => formatCalendarMonthTitle(visibleCalendarDate || selectedDateOption?.date),
+    [visibleCalendarDate, selectedDateOption]
   );
 
   const hasAvailableSlots = selectedSlots.some((slot) => slot.status === "available");
@@ -449,8 +546,13 @@ export default function Counselling() {
       date,
       timeSlot: "",
     }));
+    setVisibleCalendarDate(date);
     setDateMenuOpen(false);
     loadSlotsForDate(date);
+  }
+
+  function handleCalendarMonthChange(monthsToAdd) {
+    setVisibleCalendarDate((currentDate) => addMonthsToDateString(currentDate || selectedDateOption?.date, monthsToAdd));
   }
 
   function handleSlotSelect(timeSlot) {
@@ -549,65 +651,86 @@ export default function Counselling() {
           </Link>
         </nav>
 
+        <section className={styles.hero}>
         <aside className={styles.sidebar}>
           <Link to="/" aria-label="Open UrBridgeAI landing page">
             <img src={logo} alt="UrBridge.ai" className={styles.logo} />
           </Link>
           <div>
             <span className={styles.sidebarLabel}>AI Counselling</span>
-            <h1>Book Your Career Guidance Session</h1>
+            <h1>Book Your Counselling Session</h1>
+            <p className={styles.sidebarIntro}>
+              Get personalized guidance for your career, resume, and academic growth.
+            </p>
           </div>
 
-          <section className={styles.profileCard} aria-label="Counsellor profile">
-            <div className={styles.avatar}>AI</div>
-            <div>
-              <h2>Career Counsellor</h2>
-              <p className={styles.profileTitle}>Career Guidance Specialist</p>
-              <p className={styles.profileBio}>
-                Get structured career guidance and resume support through an AI-guided counselling session
-              </p>
-            </div>
-          </section>
+          <div className={styles.guidanceCards} aria-label="Career guidance information">
+            <section className={styles.guidanceCard}>
+              <span className={`${styles.guidanceIcon} ${styles.guidanceIconBlue}`} aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M12 12.2a4.6 4.6 0 1 0 0-9.2 4.6 4.6 0 0 0 0 9.2Z" />
+                  <path d="M4.2 21a7.8 7.8 0 0 1 15.6 0" />
+                </svg>
+              </span>
+              <div>
+                <h2>About Counselling</h2>
+                <p>AI-powered sessions for career guidance, resume improvement, and academic support.</p>
+              </div>
+            </section>
 
-          <dl className={styles.sessionInfo}>
-            <div>
-              <dt>Format</dt>
-              <dd>Google Meet (30 mins)</dd>
-            </div>
-            <div>
-              <dt>Response</dt>
-              <dd>Instant confirmation</dd>
-            </div>
-            <div>
-              <dt>Language</dt>
-              <dd>English</dd>
-              <dd>Hindi</dd>
-              <dd>Gujarati</dd>
-            </div>
-          </dl>
+            <section className={styles.guidanceCard}>
+              <span className={`${styles.guidanceIcon} ${styles.guidanceIconGreen}`} aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M7 3v4M17 3v4M4.5 9h15" />
+                  <path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v12A1.5 1.5 0 0 1 19 20H5a1.5 1.5 0 0 1-1.5-1.5v-12A1.5 1.5 0 0 1 5 5Z" />
+                  <path d="m8 14 2.2 2.2L16.5 10" />
+                </svg>
+              </span>
+              <div>
+                <h2>How It Works</h2>
+                <p>Choose a slot, get a Google Meet link instantly, and join your guided session.</p>
+              </div>
+            </section>
 
-          <section className={styles.expectations}>
-            <h2>What to expect</h2>
-            <ol>
-              <li>Book your preferred slot</li>
-              <li>Get instant Meet link on email</li>
-              <li>Join your AI-guided counselling session</li>
-              <li>Get personalized career guidance</li>
-            </ol>
-          </section>
+            <section className={styles.guidanceCard}>
+              <span className={`${styles.guidanceIcon} ${styles.guidanceIconPurple}`} aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.8l1-6.1-4.4-4.3 6.1-.9L12 3Z" />
+                </svg>
+              </span>
+              <div>
+                <h2>Benefits</h2>
+                <p>Personalized advice, clear next steps, confidential support, and actionable insights.</p>
+              </div>
+            </section>
 
-          <div className={styles.stats}>
+            <section className={styles.guidanceCard}>
+              <span className={`${styles.guidanceIcon} ${styles.guidanceIconOrange}`} aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M7 3v4M17 3v4M4.5 9h15" />
+                  <path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v12A1.5 1.5 0 0 1 19 20H5a1.5 1.5 0 0 1-1.5-1.5v-12A1.5 1.5 0 0 1 5 5Z" />
+                  <path d="M16 14h4M18 12v4" />
+                </svg>
+              </span>
+              <div>
+                <h2>Book a Session</h2>
+                <p>Choose your preferred date and time to start your guidance journey.</p>
+              </div>
+            </section>
+          </div>
+
+          <div className={styles.guidanceMeta}>
             <div>
-              <strong>100+</strong>
-              <span>Users</span>
+              <span>Duration</span>
+              <strong>30 Minutes</strong>
             </div>
             <div>
-              <strong>4.9</strong>
-              <span>Rating</span>
+              <span>Platform</span>
+              <strong>Google Meet</strong>
             </div>
             <div>
-              <strong>Instant</strong>
-              <span>Access</span>
+              <span>Response</span>
+              <strong>Instant Confirmation</strong>
             </div>
           </div>
         </aside>
@@ -732,7 +855,7 @@ export default function Counselling() {
                       type="tel"
                       value={formData.phone}
                       onChange={(event) => updateFormField("phone", normalizePhoneDigits(event.target.value))}
-                      placeholder="9876543210"
+                      placeholder=""
                       inputMode="numeric"
                       required
                     />
@@ -752,13 +875,12 @@ export default function Counselling() {
 
               <section className={styles.selectorSection}>
                 <h3>Preferred date</h3>
-                <div className={styles.dateDropdown}>
+                <div className={styles.datePicker}>
                   <button
                     type="button"
                     className={styles.dateSelectButton}
                     onClick={() => setDateMenuOpen((isOpen) => !isOpen)}
-                    disabled={slotDates.length === 0}
-                    aria-haspopup="listbox"
+                    aria-haspopup="dialog"
                     aria-expanded={dateMenuOpen}
                   >
                     <span>
@@ -766,24 +888,50 @@ export default function Counselling() {
                         ? `${selectedDateOption.displayDate || formatDateOption(selectedDateOption.date)} (${selectedDateOption.label})`
                         : "Select preferred date"}
                     </span>
-                    <strong aria-hidden="true">v</strong>
+                    <strong aria-hidden="true">⌄</strong>
                   </button>
 
                   {dateMenuOpen && (
-                    <div className={styles.dateMenu} role="listbox">
-                      {slotDates.map((dateOption) => (
-                        <button
-                          key={dateOption.date}
-                          type="button"
-                          className={`${styles.dateMenuItem}${formData.date === dateOption.date ? ` ${styles.selectedDateItem}` : ""}`}
-                          onClick={() => handleDateSelect(dateOption.date)}
-                          role="option"
-                          aria-selected={formData.date === dateOption.date}
-                        >
-                          <span>{dateOption.displayDate || formatDateOption(dateOption.date)}</span>
-                          <strong>{dateOption.label}</strong>
+                    <div className={styles.dateCalendar} role="dialog" aria-label="Choose preferred date">
+                      <div className={styles.calendarHeader}>
+                        <button type="button" onClick={() => handleCalendarMonthChange(-1)} aria-label="Previous month">
+                          ‹
                         </button>
-                      ))}
+                        <span>{calendarTitle}</span>
+                        <button type="button" onClick={() => handleCalendarMonthChange(1)} aria-label="Next month">
+                          ›
+                        </button>
+                      </div>
+                      <div className={styles.calendarWeekdays} aria-hidden="true">
+                        {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
+                          <span key={`${day}-${index}`}>{day}</span>
+                        ))}
+                      </div>
+                      <div className={styles.calendarGrid}>
+                        {calendarMonthDays.map((date, index) => {
+                          if (!date) {
+                            return <span key={`blank-${index}`} className={styles.calendarBlank} aria-hidden="true" />;
+                          }
+
+                          const dateOption = dateOptionMap.get(date) || buildCalendarDateOption(date, slotDates[0]?.date);
+                          const isAvailableDate = date >= (slotDates[0]?.date || date);
+                          const { day } = getDatePartsFromString(date);
+
+                          return (
+                            <button
+                              key={date}
+                              type="button"
+                              className={`${styles.calendarDay}${formData.date === date ? ` ${styles.selectedCalendarDay}` : ""}`}
+                              onClick={() => isAvailableDate && handleDateSelect(date)}
+                              disabled={!isAvailableDate}
+                              aria-pressed={formData.date === date}
+                              aria-label={dateOption ? `${dateOption.displayDate || formatDateOption(date)} ${dateOption.label}` : date}
+                            >
+                              {day}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -863,6 +1011,7 @@ export default function Counselling() {
             </form>
           )}
 
+        </section>
         </section>
       </main>
     </div>
