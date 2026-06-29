@@ -123,6 +123,8 @@ export default function MarketingLanding() {
   const navigate = useNavigate();
   const reviewTrackRef = useRef(null);
   const [isCounsellingMenuOpen, setIsCounsellingMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCounsellingOpen, setIsSidebarCounsellingOpen] = useState(false);
 
   useEffect(() => {
     const track = reviewTrackRef.current;
@@ -266,7 +268,143 @@ export default function MarketingLanding() {
             Get Started
           </Link>
         </nav>
+        <button
+          type="button"
+          className="urbridge-hamburger"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isSidebarOpen}
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          <span className="urbridge-hamburger-line" />
+          <span className="urbridge-hamburger-line" />
+          <span className="urbridge-hamburger-line" />
+        </button>
       </header>
+
+      {/* Mobile Drawer Sidebar */}
+      <div
+        className={`urbridge-sidebar-overlay ${isSidebarOpen ? "open" : ""}`}
+        onClick={() => {
+          setIsSidebarOpen(false);
+          setIsSidebarCounsellingOpen(false);
+        }}
+      />
+      <aside className={`urbridge-sidebar ${isSidebarOpen ? "open" : ""}`}>
+        <div className="urbridge-sidebar-header">
+          <Link
+            className="urbridge-brand"
+            to="/"
+            onClick={() => {
+              setIsSidebarOpen(false);
+              setIsSidebarCounsellingOpen(false);
+            }}
+          >
+            <img src={logo} alt="UrBridgeAI logo" />
+          </Link>
+          <button
+            type="button"
+            className="urbridge-sidebar-close"
+            aria-label="Close menu"
+            onClick={() => {
+              setIsSidebarOpen(false);
+              setIsSidebarCounsellingOpen(false);
+            }}
+          >
+            &times;
+          </button>
+        </div>
+        <nav className="urbridge-sidebar-links">
+          <a
+            href="#features"
+            onClick={() => {
+              setIsSidebarOpen(false);
+              setIsSidebarCounsellingOpen(false);
+            }}
+          >
+            Features
+          </a>
+          
+          <div className="urbridge-sidebar-counselling">
+            <button
+              type="button"
+              className="urbridge-sidebar-counselling-trigger"
+              aria-expanded={isSidebarCounsellingOpen}
+              onClick={() => setIsSidebarCounsellingOpen(!isSidebarCounsellingOpen)}
+            >
+              <span>Career Guidance</span>
+              <span className={`urbridge-sidebar-counselling-chevron ${isSidebarCounsellingOpen ? "open" : ""}`} />
+            </button>
+            {isSidebarCounsellingOpen && (
+              <div className="urbridge-sidebar-counselling-options">
+                <button
+                  type="button"
+                  className="urbridge-sidebar-option"
+                  onClick={() => {
+                    handleCallCounsellor();
+                    setIsSidebarOpen(false);
+                    setIsSidebarCounsellingOpen(false);
+                  }}
+                >
+                  Call with Counsellor
+                </button>
+                <button
+                  type="button"
+                  className="urbridge-sidebar-option"
+                  onClick={() => {
+                    handleYourSessions();
+                    setIsSidebarOpen(false);
+                    setIsSidebarCounsellingOpen(false);
+                  }}
+                >
+                  Your Sessions
+                </button>
+              </div>
+            )}
+          </div>
+
+          <a
+            href="#how-it-works"
+            onClick={() => {
+              setIsSidebarOpen(false);
+              setIsSidebarCounsellingOpen(false);
+            }}
+          >
+            How it works
+          </a>
+          <a
+            href="#about"
+            onClick={() => {
+              setIsSidebarOpen(false);
+              setIsSidebarCounsellingOpen(false);
+            }}
+          >
+            About
+          </a>
+          
+          <div className="urbridge-sidebar-footer">
+            <Link
+              to="/login"
+              className="urbridge-sidebar-signin"
+              onClick={() => {
+                setIsSidebarOpen(false);
+                setIsSidebarCounsellingOpen(false);
+              }}
+            >
+              Sign in
+            </Link>
+            <Link
+              className="urbridge-nav-button"
+              to="/register"
+              onClick={() => {
+                setIsSidebarOpen(false);
+                setIsSidebarCounsellingOpen(false);
+              }}
+            >
+              Get Started
+            </Link>
+          </div>
+        </nav>
+      </aside>
 
       <section className="urbridge-hero">
         <div className="urbridge-hero-copy">

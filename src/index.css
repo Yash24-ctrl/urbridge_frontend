@@ -2114,6 +2114,239 @@ img {
   box-shadow: 0 12px 26px rgba(16, 20, 90, 0.22);
 }
 
+/* Mobile Hamburger Button Styles */
+.urbridge-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 25;
+}
+
+.urbridge-hamburger-line {
+  width: 100%;
+  height: 2.5px;
+  background-color: #10145a;
+  border-radius: 999px;
+  transition: all 0.25s ease-in-out;
+}
+
+/* Sidebar Drawer Overlay */
+.urbridge-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(16, 20, 90, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.urbridge-sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Sidebar Drawer Panel */
+.urbridge-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 85%;
+  max-width: 320px;
+  height: 100vh;
+  background: #ffffff;
+  z-index: 1000;
+  box-shadow: -10px 0 40px rgba(16, 20, 90, 0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 24px;
+}
+
+.urbridge-sidebar.open {
+  transform: translateX(0);
+}
+
+.urbridge-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(16, 20, 90, 0.08);
+  padding-bottom: 16px;
+}
+
+.urbridge-sidebar-header .urbridge-brand img {
+  width: 130px;
+  height: auto;
+}
+
+.urbridge-sidebar-close {
+  background: rgba(16, 20, 90, 0.05);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 300;
+  color: #10145a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.urbridge-sidebar-close:hover {
+  background: rgba(16, 20, 90, 0.1);
+  transform: scale(1.05);
+}
+
+.urbridge-sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.urbridge-sidebar-links > a {
+  color: #30334f;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.urbridge-sidebar-links > a:hover {
+  color: #244be9;
+  background: rgba(36, 75, 233, 0.05);
+}
+
+/* Sidebar Counselling Dropdown Section */
+.urbridge-sidebar-counselling {
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(16, 20, 90, 0.02);
+}
+
+.urbridge-sidebar-counselling-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  color: #30334f;
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 12px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.urbridge-sidebar-counselling-trigger:hover {
+  color: #244be9;
+  background: rgba(36, 75, 233, 0.05);
+}
+
+.urbridge-sidebar-counselling-chevron {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid #10145a;
+  border-bottom: 2px solid #10145a;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  margin-right: 4px;
+}
+
+.urbridge-sidebar-counselling-chevron.open {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.urbridge-sidebar-counselling-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(16, 20, 90, 0.02);
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+.urbridge-sidebar-option {
+  background: transparent;
+  border: none;
+  color: #30334f;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.urbridge-sidebar-option:hover {
+  color: #244be9;
+  background: rgba(36, 75, 233, 0.08);
+}
+
+/* Sidebar Footer & Actions */
+.urbridge-sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(16, 20, 90, 0.08);
+}
+
+.urbridge-sidebar-signin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1.5px solid rgba(16, 20, 90, 0.15);
+  color: #10145a !important;
+  font-weight: 800;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.urbridge-sidebar-signin:hover {
+  background: rgba(16, 20, 90, 0.03);
+  border-color: #10145a;
+}
+
+.urbridge-sidebar .urbridge-nav-button {
+  width: 100%;
+  min-height: 44px;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 20px rgba(16, 20, 90, 0.15);
+}
+
 .urbridge-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(380px, 0.92fr);
@@ -3607,12 +3840,28 @@ img {
 
 @media (max-width: 980px) {
   .urbridge-nav {
-    align-items: flex-start;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+  }
+
+  .urbridge-brand {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .urbridge-brand img {
+    width: 140px;
+    height: auto;
   }
 
   .urbridge-nav-links {
-    justify-content: flex-start;
+    display: none !important;
+  }
+
+  .urbridge-hamburger {
+    display: flex;
   }
 
   .urbridge-hero,
@@ -3637,96 +3886,15 @@ img {
   }
 
   .urbridge-nav {
-    align-items: stretch;
-    gap: 14px;
-    padding: 16px;
-    border-radius: 22px;
+    padding: 10px 16px;
+    border-radius: 20px;
     background: rgba(255, 255, 255, 0.96);
     box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
   }
 
-  .urbridge-brand {
-    width: 100%;
-    justify-content: center;
-  }
-
   .urbridge-brand img {
-    width: min(230px, 74vw);
-    height: 52px;
-  }
-
-  .urbridge-nav-links {
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    overflow: visible;
-    padding: 0;
-  }
-
-  .urbridge-counselling-menu {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .urbridge-counselling-trigger {
-    width: 100%;
-    min-height: 48px;
-    padding: 0 14px;
-    border: 1px solid #d9e4f2;
-    border-radius: 999px;
-    background: #ffffff;
-    color: #1f2937;
-    font-size: clamp(0.88rem, 3.7vw, 1rem);
-    font-weight: 800;
-    white-space: nowrap;
-  }
-
-  .urbridge-counselling-dropdown {
-    top: calc(100% + 8px);
-    right: 0;
-    left: 0;
-    min-width: 100%;
-    transform: none;
-  }
-
-  .urbridge-counselling-dropdown::before {
-    left: 50%;
-  }
-
-  .urbridge-nav-links a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 48px;
-    padding: 0 14px;
-    border: 1px solid #d9e4f2;
-    border-radius: 999px;
-    background: #ffffff;
-    color: #1f2937;
-    font-size: clamp(0.88rem, 3.7vw, 1rem);
-    font-weight: 800;
-    line-height: 1.2;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .urbridge-nav-links a[href="/login"] {
-    min-height: 48px;
-    padding: 0 14px;
-    border: 1px solid #d9e4f2;
-    border-radius: 999px;
-  }
-
-  .urbridge-nav-links .urbridge-nav-button {
-    min-height: 48px;
-    padding: 0 14px;
-    border-radius: 999px;
-    border-color: #0b3d91;
-    background: #0b3d91;
-    color: #ffffff !important;
-    box-shadow: none;
+    width: 120px;
+    height: auto;
   }
 
   .urbridge-hero {
@@ -3886,22 +4054,11 @@ img {
 
 @media (max-width: 380px) {
   .urbridge-nav {
-    padding: 14px;
-  }
-
-  .urbridge-nav-links {
-    grid-template-columns: 1fr;
+    padding: 10px 12px;
   }
 
   .urbridge-brand img {
-    width: min(210px, 78vw);
-    height: 48px;
-  }
-
-  .urbridge-nav-links a,
-  .urbridge-counselling-trigger,
-  .urbridge-nav-links a[href="/login"],
-  .urbridge-nav-links .urbridge-nav-button {
-    min-height: 44px;
+    width: 105px;
+    height: auto;
   }
 }
