@@ -8,6 +8,8 @@ import DashboardPage from "./Dashboard/DashboardPage";
 import Counselling from "./pages/Counselling";
 import InterviewPrep from "./pages/InterviewPrep";
 import MarketingLanding from "./pages/MarketingLanding";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 
@@ -67,6 +69,10 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+        <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

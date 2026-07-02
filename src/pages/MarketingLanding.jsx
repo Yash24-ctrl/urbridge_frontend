@@ -612,19 +612,27 @@ export default function MarketingLanding() {
       </section>
 
       <footer className="urbridge-footer">
-        <p>
+        <p className="urbridge-footer-copy">
           Copyright &copy; 2026{" "}
           <a href="https://neuronet.in/" target="_blank" rel="noreferrer">
             NeuronetSystems
           </a>{" "}
           Pvt Ltd All Rights Reserved.
         </p>
-        <p>
+        <p className="urbridge-footer-contact">
           Contact us{" "}
           <a href="mailto:info@neuronet.in">
             info@neuronet.in
           </a>
         </p>
+        <div className="urbridge-footer-links" aria-label="Legal links">
+          <Link className="urbridge-footer-button" to="/privacy">
+            Privacy Policy
+          </Link>
+          <Link className="urbridge-footer-button" to="/terms">
+            Terms &amp; Conditions
+          </Link>
+        </div>
       </footer>
     </main>
   );
