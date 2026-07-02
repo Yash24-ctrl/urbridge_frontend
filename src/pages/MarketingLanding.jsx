@@ -524,8 +524,6 @@ export default function MarketingLanding() {
         <div className="urbridge-section-heading">
           <h2>Everything needed to move from resume confusion to a clear action plan.</h2>
           <p>
-            The website is designed so users can quickly understand what to improve and
-            what to do next.
           </p>
         </div>
         <div className="urbridge-feature-grid">
@@ -562,7 +560,7 @@ export default function MarketingLanding() {
           <span className="urbridge-kicker">User reviews</span>
           <h2>What users say about UrBridgeAI.</h2>
           <p>
-            Example feedback from students and job seekers who use the platform to
+            Feedback from students and job seekers who use the platform to
             improve resumes, prepare better, and move with more clarity.
           </p>
         </div>
