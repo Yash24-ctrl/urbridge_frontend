@@ -2164,6 +2164,7 @@ img {
   width: 85%;
   max-width: 320px;
   height: 100vh;
+  height: 100dvh;
   background: #ffffff;
   z-index: 1000;
   box-shadow: -10px 0 40px rgba(16, 20, 90, 0.15);
@@ -2171,7 +2172,8 @@ img {
   flex-direction: column;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 24px;
+  padding: 24px 24px calc(24px + env(safe-area-inset-bottom, 12px));
+  box-sizing: border-box;
   overflow: hidden;
 }
 
@@ -2219,7 +2221,13 @@ img {
   flex-direction: column;
   gap: 16px;
   flex-grow: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.urbridge-sidebar-links::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .urbridge-sidebar-links > a {
