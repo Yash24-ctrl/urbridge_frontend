@@ -2172,6 +2172,7 @@ img {
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 24px;
+  overflow: hidden;
 }
 
 .urbridge-sidebar.open {
@@ -2218,7 +2219,7 @@ img {
   flex-direction: column;
   gap: 16px;
   flex-grow: 1;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .urbridge-sidebar-links > a {

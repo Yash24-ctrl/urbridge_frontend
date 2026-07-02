@@ -127,6 +127,17 @@ export default function MarketingLanding() {
   const [isSidebarCounsellingOpen, setIsSidebarCounsellingOpen] = useState(false);
 
   useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isSidebarOpen]);
+
+  useEffect(() => {
     const track = reviewTrackRef.current;
 
     if (!track) {
